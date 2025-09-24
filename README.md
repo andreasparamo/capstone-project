@@ -40,3 +40,14 @@ Built with a focus on **speed, accuracy, analytics, and fun**, LearnToType is de
 -  **Google Analytics Integration**  
   Track user activity and engagement with a custom analytics hook.
 
+## Run Instructions
+
+  make sure to have firebase CLI installed, node, nextjs, npm, react.
+
+  In the root, run firebase __emulators:start__
+
+  copy and paste the given ip to browser to see the website
+
+  to deploy new changes, run __firebase deploy__ to push new changes to the server    
+
+
