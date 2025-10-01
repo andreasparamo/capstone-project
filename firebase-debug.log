@@ -1,0 +1,110 @@
+[debug] [2025-10-01T14:40:41.881Z] ----------------------------------------------------------------------
+[debug] [2025-10-01T14:40:41.884Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\riyan\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js emulators:start
+[debug] [2025-10-01T14:40:41.885Z] CLI Version:   13.28.0
+[debug] [2025-10-01T14:40:41.885Z] Platform:      win32
+[debug] [2025-10-01T14:40:41.885Z] Node Version:  v22.15.1
+[debug] [2025-10-01T14:40:41.886Z] Time:          Wed Oct 01 2025 09:40:41 GMT-0500 (Central Daylight Time)
+[debug] [2025-10-01T14:40:41.886Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-01T14:40:42.014Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-01T14:40:42.014Z] > authorizing via signed-in user (timewise02@gmail.com)
+[info] i  emulators: Starting emulators: hosting {"metadata":{"emulator":{"name":"hub"},"message":"Starting emulators: hosting"}}
+[debug] [2025-10-01T14:40:42.034Z] [logging] Logging Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-01T14:40:42.034Z] [hosting] Hosting Emulator only supports listening on one address (127.0.0.1). Not listening on ::1
+[debug] [2025-10-01T14:40:42.034Z] assigned listening specs for emulators {"user":{"hub":[{"address":"127.0.0.1","family":"IPv4","port":4400},{"address":"::1","family":"IPv6","port":4400}],"logging":[{"address":"127.0.0.1","family":"IPv4","port":4500}],"hosting":[{"address":"127.0.0.1","family":"IPv4","port":5003}]},"metadata":{"message":"assigned listening specs for emulators"}}
+[debug] [2025-10-01T14:40:42.040Z] [hub] writing locator at C:\Users\riyan\AppData\Local\Temp\hub-learntotype-f5e3c.json
+[debug] [2025-10-01T14:40:42.066Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.067Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.067Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:42.071Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:42.071Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.279Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:42.279Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.279Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/learntotype-f5e3c/sites 
+[debug] [2025-10-01T14:40:42.499Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/learntotype-f5e3c/sites 401
+[debug] [2025-10-01T14:40:42.499Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/learntotype-f5e3c/sites {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}
+[debug] [2025-10-01T14:40:42.499Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2025-10-01T14:40:42.499Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.499Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.499Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:42.500Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:42.500Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.583Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:42.583Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.584Z] Failed to list hosting sites
+[debug] Request to https://firebasehosting.googleapis.com/v1beta1/projects/learntotype-f5e3c/sites had HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[debug] [2025-10-01T14:40:42.584Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.585Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.585Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:42.585Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:42.585Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.658Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:42.658Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.658Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c/webApps/-/config [none]
+[debug] [2025-10-01T14:40:42.854Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c/webApps/-/config 401
+[debug] [2025-10-01T14:40:42.854Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c/webApps/-/config {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}
+[debug] [2025-10-01T14:40:42.854Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2025-10-01T14:40:42.854Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.854Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.854Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:42.855Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:42.855Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.930Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:42.930Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:42.930Z] fetchWebSetup error: FirebaseError: Request to https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c/webApps/-/config had HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[warn] !  hosting: Could not fetch web app configuration and there is no cached configuration on this machine. Check your internet connection and make sure you are authenticated. To continue, you must call firebase.initializeApp({...}) in your code before using Firebase. 
+[debug] [2025-10-01T14:40:42.931Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.931Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:42.931Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:42.932Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:42.932Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:43.008Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:43.008Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:43.009Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c [none]
+[debug] [2025-10-01T14:40:43.156Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c 401
+[debug] [2025-10-01T14:40:43.156Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c {"error":{"code":401,"message":"Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.","status":"UNAUTHENTICATED"}}
+[debug] [2025-10-01T14:40:43.156Z] Got a 401 Unauthenticated error for a call that required authentication. Refreshing tokens.
+[debug] [2025-10-01T14:40:43.156Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:43.156Z] Checked if tokens are valid: false, expires at: 1733982553468
+[debug] [2025-10-01T14:40:43.156Z] > refreshing access token with scopes: []
+[debug] [2025-10-01T14:40:43.156Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-10-01T14:40:43.156Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:43.227Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 400
+[debug] [2025-10-01T14:40:43.227Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-10-01T14:40:43.228Z] Request to https://firebase.googleapis.com/v1beta1/projects/learntotype-f5e3c had HTTP Error: 401, Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project.
+[info] i  hosting[learntotype-f5e3c]: Serving hosting files from: out {"metadata":{"emulator":{"name":"hosting"},"message":"Serving hosting files from: \u001b[1mout\u001b[22m"}}
+[info] +  hosting[learntotype-f5e3c]: Local server: http://127.0.0.1:5003 {"metadata":{"emulator":{"name":"hosting"},"message":"Local server: \u001b[4m\u001b[1mhttp://127.0.0.1:5003\u001b[22m\u001b[24m"}}
+[warn] !  emulators: The Emulator UI is not starting, either because none of the running emulators have a UI component or the Emulator UI cannot determine the Project ID. Pass the --project flag to specify a project. {"metadata":{"emulator":{"name":"hub"},"message":"The Emulator UI is not starting, either because none of the running emulators have a UI component or the Emulator UI cannot determine the Project ID. Pass the --project flag to specify a project."}}
+[debug] [2025-10-01T14:40:43.256Z] Could not find VSCode notification endpoint: FetchError: request to http://localhost:40001/vscode/notify failed, reason: . If you are not running the Firebase Data Connect VSCode extension, this is expected and not an issue.
+[info] 
+┌─────────────────────────────────────────────────────────────┐
+│ ✔  All emulators ready! It is now safe to connect your app. │
+└─────────────────────────────────────────────────────────────┘
+
+┌──────────┬────────────────┐
+│ Emulator │ Host:Port      │
+├──────────┼────────────────┤
+│ Hosting  │ 127.0.0.1:5003 │
+└──────────┴────────────────┘
+  Emulator Hub running at 127.0.0.1:4400
+  Other reserved ports: 4500
+
+Issues? Report them at https://github.com/firebase/firebase-tools/issues and attach the *-debug.log files.
+ 
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET / HTTP/1.1" 200 - "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET / HTTP/1.1\" 200 - \"-\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/media/797e433ab948586e-s.p.dbea232f.woff2 HTTP/1.1" 200 31288 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/media/797e433ab948586e-s.p.dbea232f.woff2 HTTP/1.1\" 200 31288 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2 HTTP/1.1" 200 28388 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/media/caa3a2e1cccd8315-s.p.853070df.woff2 HTTP/1.1\" 200 28388 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/6674890dd812d84b.css HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/6674890dd812d84b.css HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /next.svg HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /next.svg HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/a16c592eb97d0c63.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/a16c592eb97d0c63.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/turbopack-b67b0b158f6c64a8.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/turbopack-b67b0b158f6c64a8.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/6e167782e7735ddc.js HTTP/1.1" 200 282 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/6e167782e7735ddc.js HTTP/1.1\" 200 282 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/7664dbd6b579a4fd.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/7664dbd6b579a4fd.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/76681af956cef505.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/76681af956cef505.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/bc5967999ea27b97.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/bc5967999ea27b97.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /_next/static/chunks/4cc284511c25d338.js HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /_next/static/chunks/4cc284511c25d338.js HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /file.svg HTTP/1.1" 200 391 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /file.svg HTTP/1.1\" 200 391 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /vercel.svg HTTP/1.1" 200 128 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /vercel.svg HTTP/1.1\" 200 128 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /window.svg HTTP/1.1" 200 385 "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /window.svg HTTP/1.1\" 200 385 \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /globe.svg HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /globe.svg HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
+[info] i  hosting: 127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] "GET /favicon.ico?favicon.0b3bf435.ico HTTP/1.1" 200 - "http://127.0.0.1:5003/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36" {"metadata":{"emulator":{"name":"hosting"},"message":"127.0.0.1 - - [01/Oct/2025:14:40:46 +0000] \"GET /favicon.ico?favicon.0b3bf435.ico HTTP/1.1\" 200 - \"http://127.0.0.1:5003/\" \"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36\""}}
