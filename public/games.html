@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnToType — Games / WordFall</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #ededed; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; line-height: 1.6; min-height: 100vh; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 50px 50px; z-index: 1; pointer-events: none; }
+
+    .header { background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem 0; position: sticky; top: 0; z-index: 100; }
+    .nav-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-size: 1.8rem; font-weight: 600; color: #ededed; text-decoration: none; }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a { color: #a1a1aa; text-decoration: none; transition: all 0.2s ease; font-weight: 400; padding: 0.5rem 1rem; border-radius: 8px; position: relative; }
+    .nav-links a:hover { color: #ededed; background: rgba(255, 255, 255, 0.05); }
+    .user-menu { display: flex; align-items: center; gap: 1rem; }
+    .user-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; font-weight: 600; color: white; }
+
+    main { max-width: 1200px; margin: 0 auto; padding: 1.25rem 2rem 2rem; position: relative; z-index: 2; }
+    .muted { color: #a1a1aa; }
+
+    #gamesPage { display: grid; gap: 1.25rem; }
+    .games-hero { margin-top: 1.2rem; }
+    .grid { margin-top: 1rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.2rem; }
+    .card { background: #0c0c0c; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 1rem; display: flex; flex-direction: column; gap: .6rem; }
+    .card h3 { margin: 0; font-size: 1.1rem; }
+    .card p { margin: 0; color: #a1a1aa; font-size: .95rem; }
+    .card .thumb { height: 140px; border-radius: 12px; background: linear-gradient(135deg,#667eea55,#764ba255); border:1px solid rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center; font-weight:700; letter-spacing:.4px; }
+    .card .row { display:flex; justify-content:space-between; align-items:center; gap:.6rem; }
+    .btn { background:#0b0b0b; color:#ededed; border:1px solid rgba(255,255,255,.12); padding:.55rem .8rem; border-radius:10px; text-decoration:none; display:inline-flex; align-items:center; gap:.4rem; cursor:pointer; }
+    .btn.primary { background: linear-gradient(135deg,#22c55e, #16a34a); border: none; color: #03120a; font-weight:600; }
+
+    #wordfallPage { display: none; }
+    #stage { margin-top: 1.25rem; border: 1px solid rgba(255,255,255,.1); border-radius: 16px; background: linear-gradient(180deg,#0b0b0b,#050505); padding: 16px; }
+    #game { position: relative; height: min(68vh, 680px); min-height: 420px; border-radius: 12px; background: linear-gradient(180deg, rgba(8,8,8,0.85), rgba(0,0,0,0.92)); overflow: hidden; }
+    #overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.55); backdrop-filter:blur(2px); z-index:20; }
+    #overlay[hidden]{ display:none !important; }
+    #overlayContent { background:#0c0c0c; border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:20px 22px; width:min(90%,460px); text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.55) }
+    .footer { margin-top:.8rem; display:flex; justify-content:space-between; align-items:center; gap:1rem; }
+    #typebox { width:320px; max-width:90vw }
+    .pill { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); padding:.45rem .7rem; border-radius:999px; font-size:.85rem; color:#d4d4d8; }
+    select, button, input[type="text"] { background:#0b0b0b; color:#ededed; border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:.55rem .7rem; font-size:.9rem; outline:none; }
+    button { cursor: pointer; }
+    .primary { background: linear-gradient(135deg,#22c55e, #16a34a); border: none; color: #03120a; font-weight:600; }
+    .word { position:absolute; padding:8px 12px; border-radius:12px; background:rgba(255,255,255,.08); backdrop-filter:blur(6px); font-weight:700; letter-spacing:.3px; user-select:none; pointer-events:none; box-shadow:0 8px 20px rgba(0,0,0,.25); }
+
+    @media (max-width: 900px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 640px){ .grid{ grid-template-columns: 1fr; } .nav-container{ padding:0 1rem; } .nav-links{ display:none; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="nav-container">
+      <a href="#/games" class="logo" id="homeLink">LearnToType</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#/games" id="navGames">Games</a></li>
+          <li><a href="#" class="muted">Lessons</a></li>
+          <li><a href="#" class="muted">Progress</a></li>
+          <li><a href="#" class="muted">Leaderboard</a></li>
+        </ul>
+      </nav>
+      <div class="user-menu"><div class="user-avatar">U</div></div>
+    </div>
+  </header>
+
+  <main>
+    <section id="gamesPage">
+      <div class="games-hero">
+        <h1 style="font-size:2rem; font-weight:700; letter-spacing:.3px;">Games</h1>
+        <p class="muted">Pick a game to practice your skills.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div class="thumb">WORDFALL</div>
+          <h3>WordFall</h3>
+          <p>Type words before they hit the bottom. Difficulty-aware, clean UI.</p>
+          <div class="row">
+            <span class="muted">Typing • Reflex</span>
+            <a class="btn primary" href="#/wordfall" id="playWordfall">Play</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="wordfallPage">
+      <div class="nav-container" style="padding:0; margin:0; max-width:100%; display:flex; gap:.6rem; align-items:center; justify-content:space-between;">
+        <div style="display:flex; gap:.6rem; align-items:center;">
+          <a class="btn" href="#/games">← Back</a>
+          <h2 style="margin-left:.4rem">WordFall</h2>
+        </div>
+        <div style="display:flex; gap:.6rem; align-items:center;">
+          <label for="difficulty" class="sr-only" style="position:absolute;left:-9999px">Difficulty</label>
+          <select id="difficulty" aria-label="Difficulty">
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="expert">Expert</option>
+          </select>
+          <button id="startBtn" class="primary">Start</button>
+          <button id="restartBtn">Restart</button>
+          <span class="pill">Score: <b id="score">0</b></span>
+          <span class="pill">Level: <b id="level">1</b></span>
+          <span class="pill">Lives: <b id="lives">3</b></span>
+        </div>
+      </div>
+
+      <section id="stage">
+        <div id="game">
+          <div id="overlay" hidden>
+            <div id="overlayContent"></div>
+          </div>
+        </div>
+        <div class="footer">
+          <div class="muted">Type the full word then press Space or Enter.</div>
+          <input id="typebox" type="text" placeholder="Start typing…" autocomplete="off" spellcheck="false" />
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const gamesPage = document.getElementById('gamesPage');
+    const wordfallPage = document.getElementById('wordfallPage');
+    function route(){
+      const hash = location.hash || '#/games';
+      const isGame = hash.startsWith('#/wordfall');
+      gamesPage.style.display = isGame ? 'none' : 'block';
+      wordfallPage.style.display = isGame ? 'block' : 'none';
+    }
+    window.addEventListener('hashchange', route);
+    route();
+
+    const WORDS = {
+      beginner: ['cat','dog','sun','tree','book','code','star','bird','fish','wind','game','home','rock','ball','milk','blue','green','happy','quick','light','train','apple','bread','mouse','table','phone','water','smile','jump','rain','cloud','river','chair','plant','paper','piano','lemon','grape','quiet','sound','truck','road','house','clock','stone','sugar','butter','cable','castle','garden','blank','simple','bright','clean','cool','fresh','sweet','tiny','brave'],
+      intermediate: ['jungle','rocket','puzzle','python','silver','laptop','winter','coffee','planet','thunder','network','battery','keyboard','monitor','quantum','dynamic','channel','gateway','compile','process','package','feature','digital','gravity','texture','control','cluster','balance','library','storage','service','latency','iterate','compute','backend','frontend','mutable','immutable','parallel','virtual','pointer','decimal','validate','optimize','fallback','tracking','partial','connect','resolve','context','adapter','decoder','encoder','handler','cursor','overlay','provider','schema'],
+      expert: ['synchronous','metamorphosis','cryptography','microarchitecture','idempotency','observability','characteristic','multiplication','thermodynamics','inconsequential','polymorphism','interoperability','disambiguation','heterogeneous','electromagnetic','parallelizable','synchronization','serialization','mischaracterize','counterintuitive','decomposition','infrastructure','deserialization','posttranslational','electrophysiology','photoautotrophic','metacognition','hyperparameter','spectrophotometer','bioluminescence','neuroplasticity','phenomenological','telecommunication','photosensitivity','computationally','indistinguishable']
+    };
+    const bags = { beginner: [], intermediate: [], expert: [] };
+    function refillBag(key){ const arr = WORDS[key].slice(); for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } bags[key] = arr; }
+    function nextWord(key){ if(!bags[key] || bags[key].length===0) refillBag(key); return bags[key].pop(); }
+
+    const PRESETS = { beginner:{ baseFall:60, spawn:1600, laneWidth:160 }, intermediate:{ baseFall:85, spawn:1300, laneWidth:175 }, expert:{ baseFall:110, spawn:1100, laneWidth:195 } };
+    const state = { running:false, paused:false, score:0, level:1, lives:3, difficulty:'beginner', words:[], lastTime:null, lastSpawn:0, startTime:null, lanes:[], laneCount:0 };
+
+    const game = document.getElementById('game');
+    const overlay = document.getElementById('overlay');
+    const overlayContent = document.getElementById('overlayContent');
+    const typebox = document.getElementById('typebox');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const diffSel = document.getElementById('difficulty');
+    const scoreEl = document.getElementById('score');
+    const levelEl = document.getElementById('level');
+    const livesEl = document.getElementById('lives');
+
+    const setScore = n => { state.score=n; scoreEl.textContent=n; };
+    const setLevel = n => { state.level=n; levelEl.textContent=n; };
+    const setLives = n => { state.lives=n; livesEl.textContent=String(n); };
+
+    function showOverlayObj({title, message, actions=[]}){
+      overlayContent.innerHTML = '';
+      const h = document.createElement('h2'); h.textContent = title; overlayContent.appendChild(h);
+      if(message){ const p = document.createElement('p'); p.style.color='#a1a1aa'; p.textContent = message; overlayContent.appendChild(p); }
+      if(actions.length){ const row = document.createElement('div'); row.style.marginTop='10px'; row.style.display='flex'; row.style.gap='8px'; row.style.justifyContent='center'; actions.forEach(a=>{ const b=document.createElement('button'); b.textContent=a.label; if(a.primary){ b.className='primary'; } b.addEventListener('click', a.onClick); b.classList.add('btn'); overlayContent.appendChild(row); row.appendChild(b); }); }
+      overlay.hidden = false;
+    }
+    function hideOverlay(){ overlay.hidden = true; overlayContent.innerHTML=''; }
+
+    function computeLanes(){ const width = game.clientWidth; const laneWidth = PRESETS[state.difficulty].laneWidth; const count = Math.max(3, Math.floor(width / laneWidth)); state.laneCount = count; const margin = 12; const usable = width - margin*2; state.lanes = Array.from({length:count}, (_,i)=> Math.round(margin + (i+0.5)*(usable/count))); }
+
+    function spawnWord(){ if(state.words.length>=3) return; if(!state.lanes.length) computeLanes(); const used=new Set(state.words.map(w=>w.lane)); const free=state.lanes.map((_,i)=>i).filter(i=>!used.has(i)); if(!free.length) return; const lane=free[Math.floor(Math.random()*free.length)]; const text = nextWord(state.difficulty); const el=document.createElement('div'); el.className='word'; el.textContent=text; game.appendChild(el); const xCenter=state.lanes[lane]; const maxLeft=game.clientWidth - el.offsetWidth - 6; const x = Math.max(6, Math.min(maxLeft, xCenter - el.offsetWidth/2)); const base=PRESETS[state.difficulty].baseFall; const elapsed= state.startTime ? (performance.now()-state.startTime)/1000 : 0; const timeFactor=1 + Math.min(1.0, elapsed*0.004); const levelFactor=1 + (state.level-1)*0.06; const speed=(base + Math.random()*base*0.25) * levelFactor * timeFactor; const node={ el, x, y:-el.offsetHeight, speed, text, lane }; el.style.transform='translate('+x+'px, '+node.y+'px)'; state.words.push(node); }
+
+    function removeWord(idx, celebrate=false){ const node = state.words.splice(idx,1)[0]; if(!node) return; if(celebrate){ node.el.style.background='rgba(255,255,255,.14)'; } const start='translate('+node.x+'px, '+node.y+'px)'; const end='translate('+node.x+'px, '+(node.y-10)+'px)'; node.el.animate([{opacity:1, transform:start},{opacity:0, transform:end}], {duration:200, easing:'ease-out'}).onfinish=()=> node.el.remove(); }
+
+    function update(dt){ for(let i=state.words.length-1;i>=0;i--){ const w=state.words[i]; w.y += w.speed*dt; w.el.style.transform='translate('+w.x+'px, '+w.y+'px)'; if(w.y + w.el.offsetHeight >= game.clientHeight){ removeWord(i); setLives(Math.max(0, state.lives-1)); if(state.lives<=0){ gameOver(); return; } } } state.lastSpawn += dt*1000; const baseSpawn = PRESETS[state.difficulty].spawn; const cap = Math.max(900, baseSpawn - (state.level-1)*30); if(state.lastSpawn >= cap && state.words.length < 3){ state.lastSpawn=0; spawnWord(); } }
+
+    function loop(ts){ if(!state.running || state.paused){ state.lastTime = ts; return requestAnimationFrame(loop); } if(state.lastTime==null) state.lastTime = ts; const dt = Math.min(0.05, (ts - state.lastTime)/1000); state.lastTime = ts; update(dt); requestAnimationFrame(loop); }
+
+    function startGame(){ if(!state.running){ reset(); state.running=true; startBtn.textContent='Pause'; hideOverlay(); typebox.focus(); } else { togglePause(); } }
+    function togglePause(){ state.paused = !state.paused; startBtn.textContent = state.paused ? 'Resume' : 'Pause'; if(state.paused){ showOverlayObj({ title:'Paused', message:'Press Resume to continue.' }); } else { hideOverlay(); } }
+
+    function reset(){ state.words.forEach(w=> w.el.remove()); state.words=[]; setScore(0); setLevel(1); setLives(3); state.startTime=performance.now(); state.lastSpawn=0; state.lastTime=null; state.paused=false; computeLanes(); for(let i=0;i<2;i++) setTimeout(spawnWord, i*300); }
+    function gameOver(){ state.running=false; state.paused=false; startBtn.textContent='Start'; showOverlayObj({ title:'Game Over', message:'Score '+state.score+' · Level '+state.level, actions:[{ label:'Play Again', primary:true, onClick:()=> restart() }] }); }
+    function restart(){ hideOverlay(); reset(); state.running=true; startBtn.textContent='Pause'; typebox.focus(); }
+
+    typebox.addEventListener('keydown', e => { if(e.key==='Enter' || e.key===' '){ e.preventDefault(); const value=typebox.value.trim(); if(!value) return; let matchIdx=-1, maxY=-Infinity; state.words.forEach((w,idx)=>{ if(w.text.toLowerCase()===value.toLowerCase() && w.y>maxY){ matchIdx=idx; maxY=w.y; } }); if(matchIdx>-1){ removeWord(matchIdx,true); setScore(state.score+10); } else { typebox.style.borderColor='rgba(239,68,68,.8)'; setTimeout(()=> typebox.style.borderColor='', 180); } typebox.value=''; } });
+
+    startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', restart);
+    diffSel.addEventListener('change', ()=>{ state.difficulty = diffSel.value; computeLanes(); });
+    window.addEventListener('resize', computeLanes);
+
+    requestAnimationFrame(loop);
+
+
+    window.runTests = function(){ const results=[]; const assert=(n,c)=>results.push({n, pass:!!c}); reset(); state.running=true; spawnWord(); spawnWord(); spawnWord(); spawnWord(); assert('cap<=3', state.words.length<=3); const lanes=new Set(state.words.map(w=> w.lane)); assert('unique lanes', lanes.size===state.words.length); const onScreen=state.words.every(w=>{ const r=w.el.getBoundingClientRect(), g=game.getBoundingClientRect(); return r.left>=g.left && r.right<=g.right; }); assert('fully on-screen', onScreen); console.log(results); return results; };
+  </script>
+</body>
+</html>
