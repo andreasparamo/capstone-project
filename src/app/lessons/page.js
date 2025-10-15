@@ -1,8 +1,8 @@
-'use client';
+"use client";
+import { useState, useEffect, useRef, useCallback } from "react";
+import "./lessons.css";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import './lessons.css';
-
+// Injected from existing file to preserve exact lesson content
 const LESSONS = [
   { 
     id: 'beg-1-home-row-left', 
@@ -39,12 +39,21 @@ const LESSONS = [
     description: 'Combine left/right hands with rhythm.',
     text: 'asdf jkl; asdf jkl;  a s d f j k l ;  as df jk l;  asdfjkl; asdfjkl;  a s d f  j k l ;  asdf jkl;'
   }
-];
+]
 
-const PAGE_CHARS = 260;
-const fingerMap = { 
-  'a': 'LP', 's': 'LR', 'd': 'LM', 'f': 'LI', 
-  'j': 'RI', 'k': 'RM', 'l': 'RR', ';': 'RP', ' ': 'RP' 
+// Match the new HTML pagination size
+const PAGE_CHARS = 180;
+
+const fingerMap = {
+  a: "LP",
+  s: "LR",
+  d: "LM",
+  f: "LI",
+  j: "RI",
+  k: "RM",
+  l: "RR",
+  ";": "RP",
+  "’": "RP",
 };
 
 export default function LessonsPage() {
@@ -54,22 +63,21 @@ export default function LessonsPage() {
   const [activeKeys, setActiveKeys] = useState(new Set());
   const [activeFingers, setActiveFingers] = useState(new Set());
   const [keyFlash, setKeyFlash] = useState({ key: null, type: null });
-  
   const hiddenInputRef = useRef(null);
 
   const makePages = (text) => {
-    const words = text.split(/(\s+)/);
+    const words = text.split(/\s+/);
     const pages = [];
-    let buf = '';
+    let buf = "";
     for (const w of words) {
-      if ((buf + w).length > PAGE_CHARS && buf.length > 0) {
-        pages.push(buf);
+      if ((buf + " " + w).length > PAGE_CHARS) {
+        if (buf.length > 0) pages.push(buf.trim());
         buf = w;
       } else {
-        buf += w;
+        buf = buf ? buf + " " + w : w;
       }
     }
-    if (buf) pages.push(buf);
+    if (buf) pages.push(buf.trim());
     return pages;
   };
 
@@ -85,7 +93,7 @@ export default function LessonsPage() {
       correct: 0,
       startedAt: null,
       finished: false,
-      log: []
+      log: [],
     });
     setOverlayVisible(true);
   }, []);
@@ -97,107 +105,100 @@ export default function LessonsPage() {
     setActiveFingers(new Set());
   };
 
+  const returnToLessons = () => {
+    setReviewVisible(false);
+    setOverlayVisible(false);
+    setCurrentLesson(null);
+    setActiveKeys(new Set());
+    setActiveFingers(new Set());
+  };
+
   const restartLesson = () => {
-    if (currentLesson) {
-      startLesson(currentLesson.lesson);
-    }
+    if (currentLesson) startLesson(currentLesson.lesson);
   };
 
   const highlightForChar = (ch) => {
-    setActiveKeys(new Set([ch]));
-    setActiveFingers(new Set([fingerMap[ch]]));
+    setActiveKeys(new Set(ch ? [ch] : []));
+    setActiveFingers(new Set(fingerMap[ch] ? [fingerMap[ch]] : []));
   };
 
   const flashKey = (ch, ok) => {
-    setKeyFlash({ key: ch, type: ok ? 'correct' : 'wrong' });
+    setKeyFlash({ key: ch, type: ok ? "correct" : "wrong" });
     setTimeout(() => setKeyFlash({ key: null, type: null }), 150);
   };
 
   const calculateStats = (lesson) => {
     if (!lesson.startedAt) return { wpm: 0, acc: 100, prog: 0 };
-    
     const elapsedMin = (Date.now() - lesson.startedAt) / 60000;
     const words = lesson.correct / 5;
     const wpm = elapsedMin > 0 ? Math.round(words / elapsedMin) : 0;
     const total = lesson.correct + lesson.errors;
     const acc = total ? Math.max(0, Math.round((lesson.correct / total) * 100)) : 100;
-    const totalChars = lesson.pages.join('').length;
-    const typedGlobal = lesson.pages.slice(0, lesson.pageIndex).join('').length + lesson.idx;
+    const totalChars = lesson.pages.join("").length;
+    const typedGlobal = lesson.pages.slice(0, lesson.pageIndex).join("").length + lesson.idx;
     const prog = totalChars ? Math.round((typedGlobal / totalChars) * 100) : 0;
-    
     return { wpm, acc, prog };
   };
 
   const openReview = (stats, lesson) => {
-    const mistakes = lesson.log.filter(r => !r.correct);
+    const mistakes = lesson.log.filter((r) => !r.correct);
     const counts = {};
-    mistakes.forEach(m => counts[m.expected] = (counts[m.expected] || 0) + 1);
-    
-    setCurrentLesson(prev => ({
+    mistakes.forEach((m) => {
+      counts[m.expected] = (counts[m.expected] || 0) + 1;
+    });
+    setCurrentLesson((prev) => ({
       ...prev,
       reviewData: {
         wpm: stats.wpm,
         acc: stats.acc,
         mistakes,
         counts,
-        total: lesson.pages.join('').length,
+        total: lesson.pages.join("").length,
         date: new Date().toISOString(),
-        title: lesson.lesson.title
-      }
+        title: lesson.lesson.title,
+      },
     }));
     setReviewVisible(true);
   };
 
-  const handleKey = useCallback((ch) => {
-    if (!currentLesson || currentLesson.finished) return;
-    
-    setCurrentLesson(prev => {
-      const newLesson = { ...prev };
-      if (newLesson.startedAt === null) {
-        newLesson.startedAt = Date.now();
-      }
-
-      const expected = newLesson.chars[newLesson.idx];
-      let ok = false;
-      
-      if (ch === expected) {
-        ok = true;
-        newLesson.correct++;
-      } else {
-        newLesson.errors++;
-      }
-      
-      newLesson.log.push({
-        page: newLesson.pageIndex,
-        i: newLesson.idx,
-        expected,
-        typed: ch,
-        correct: ok
-      });
-      
-      newLesson.idx++;
-      flashKey(expected, ok);
-
-      if (newLesson.idx >= newLesson.chars.length) {
-        if (newLesson.pageIndex < newLesson.pages.length - 1) {
-          newLesson.pageIndex++;
-          newLesson.chars = [...newLesson.pages[newLesson.pageIndex]];
-          newLesson.idx = 0;
-          highlightForChar(newLesson.chars[0] || '');
+  const handleKey = useCallback(
+    (ch) => {
+      if (!currentLesson || currentLesson.finished) return;
+      setCurrentLesson((prev) => {
+        const L = { ...prev };
+        if (L.startedAt == null) L.startedAt = Date.now();
+        const expected = L.chars[L.idx];
+        let ok = false;
+        if (ch === expected) {
+          ok = true;
+          L.correct++;
         } else {
-          newLesson.finished = true;
-          setTimeout(() => {
-            const stats = calculateStats(newLesson);
-            openReview(stats, newLesson);
-          }, 100);
+          L.errors++;
         }
-      } else {
-        highlightForChar(newLesson.chars[newLesson.idx] || '');
-      }
-      
-      return newLesson;
-    });
-  }, [currentLesson]);
+        L.log.push({ page: L.pageIndex, i: L.idx, expected, typed: ch, correct: ok });
+        flashKey(expected, ok);
+        if (L.idx < L.chars.length - 1) {
+          L.idx++;
+          highlightForChar(L.chars[L.idx]);
+          return L;
+        }
+        if (L.pageIndex < L.pages.length - 1) {
+          L.pageIndex++;
+          L.chars = [...L.pages[L.pageIndex]];
+          L.idx = 0;
+          highlightForChar(L.chars[0]);
+          return L;
+        }
+        L.finished = true;
+        setTimeout(() => {
+          const stats = calculateStats(L);
+          openReview(stats, L);
+        }, 100);
+        return L;
+      });
+    },
+    [currentLesson]
+  );
 
   useEffect(() => {
     if (overlayVisible && hiddenInputRef.current) {
@@ -206,32 +207,29 @@ export default function LessonsPage() {
   }, [overlayVisible]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const onKey = (e) => {
       if (!overlayVisible || !currentLesson) return;
-      
       if (e.key.length === 1) {
         e.preventDefault();
         handleKey(e.key);
-      } else if (e.key === 'Spacebar' || e.code === 'Space') {
+      } else if (e.key === "Spacebar" || e.code === "Space") {
         e.preventDefault();
-        handleKey(' ');
-      } else if (e.key === 'Escape') {
+        handleKey(" ");
+      } else if (e.key === "Escape") {
         e.preventDefault();
-        closePlayer();
-      } else if (e.key === 'Enter' && currentLesson.finished) {
+        if (reviewVisible) returnToLessons();
+        else closePlayer();
+      } else if (e.key === "Enter" && currentLesson.finished) {
         e.preventDefault();
         setReviewVisible(true);
       }
     };
-
-    if (overlayVisible) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [overlayVisible, currentLesson, handleKey]);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [overlayVisible, currentLesson, handleKey, reviewVisible]);
 
   useEffect(() => {
-    if (currentLesson && currentLesson.chars[currentLesson.idx]) {
+    if (currentLesson?.chars && currentLesson.idx < currentLesson.chars.length) {
       highlightForChar(currentLesson.chars[currentLesson.idx]);
     }
   }, [currentLesson?.idx]);
@@ -242,13 +240,15 @@ export default function LessonsPage() {
     <main>
       <section className="hero">
         <h1 className="title">Lessons</h1>
-        <p className="subtitle">Structured practice that scales from home row basics to speed drills.</p>
+        <p className="subtitle">
+          Structured practice that scales from home row basics to speed drills.
+        </p>
       </section>
 
       <section className="grid">
         {LESSONS.map((lesson) => (
           <article key={lesson.id} className="card">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '.5rem' }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: ".5rem" }}>
               <h3>{lesson.title}</h3>
               <span className="badge">{lesson.level}</span>
             </div>
@@ -260,45 +260,49 @@ export default function LessonsPage() {
         ))}
       </section>
 
-      {/* Player Overlay */}
       {overlayVisible && currentLesson && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
           <div className="player">
             <header className="player-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+              <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
                 <span className="badge">{currentLesson.lesson.level}</span>
                 <h2 id="playerTitle">{currentLesson.lesson.title}</h2>
               </div>
               <div className="stats">
-                <div className="stat">WPM: <strong>{stats.wpm}</strong></div>
-                <div className="stat">Accuracy: <strong>{stats.acc}%</strong></div>
-                <div className="stat">Progress: <strong>{stats.prog}%</strong></div>
+                <div className="stat">WPM <strong id="statWPM">{stats.wpm}</strong></div>
+                <div className="stat">Accuracy <strong id="statACC">{stats.acc}</strong></div>
+                <div className="stat">Progress <strong id="statPROG">{stats.prog}</strong></div>
               </div>
             </header>
+
             <div className="typing-pane">
-              <div className="lesson-text">
+              <div className="lesson-text" id="lessonText">
                 {currentLesson.chars.map((ch, i) => {
                   const classes = [];
-                  if (i === currentLesson.idx) classes.push('char-current');
-                  if (i < currentLesson.idx) {
-                    const logEntry = currentLesson.log.find(l => l.i === i && l.page === currentLesson.pageIndex);
-                    if (logEntry) {
-                      classes.push(logEntry.correct ? 'char-correct' : 'char-wrong');
-                    }
-                  }
+                  if (i === currentLesson.idx) classes.push("char-current");
+                  const logEntry = currentLesson.log.find(
+                    (l) => l.i === i && l.page === currentLesson.pageIndex
+                  );
+                  if (logEntry) classes.push(logEntry.correct ? "char-correct" : "char-wrong");
                   return (
-                    <span key={i} data-i={i} className={classes.join(' ')}>
-                      {ch === ' ' ? '\u00A0' : ch}
+                    <span key={i} data-i={i} className={classes.join(" ")}>
+                      {ch === " " ? "\u00A0" : ch}
                     </span>
                   );
                 })}
               </div>
+
               <div className="kb-wrap" aria-hidden="true">
                 <div className="kb-row">
-                  {['a', 's', 'd', 'f', 'j', 'k', 'l', ';'].map(key => (
-                    <div 
+                  {["a", "s", "d", "f", "j", "k", "l", ";"].map((key) => (
+                    <div
                       key={key}
-                      className={`key ${activeKeys.has(key) ? 'active' : ''} ${keyFlash.key === key && keyFlash.type === 'correct' ? 'correct-flash' : ''} ${keyFlash.key === key && keyFlash.type === 'wrong' ? 'wrong-flash' : ''}`}
+                      className={[
+                        "key",
+                        activeKeys.has(key) ? "active" : "",
+                        keyFlash.key === key && keyFlash.type === "correct" ? "correct-flash" : "",
+                        keyFlash.key === key && keyFlash.type === "wrong" ? "wrong-flash" : "",
+                      ].join(" ")}
                       data-key={key}
                     >
                       {key.toUpperCase()}
@@ -306,34 +310,35 @@ export default function LessonsPage() {
                   ))}
                 </div>
                 <div className="kb-row">
-                  <div 
-                    className={`key space ${activeKeys.has(' ') ? 'active' : ''} ${keyFlash.key === ' ' && keyFlash.type === 'correct' ? 'correct-flash' : ''} ${keyFlash.key === ' ' && keyFlash.type === 'wrong' ? 'wrong-flash' : ''}`}
-                    data-key=" "
+                  <div
+                    className={[
+                      "key",
+                      "space",
+                      activeKeys.has(" ") ? "active" : "",
+                      keyFlash.key === " " && keyFlash.type === "correct" ? "correct-flash" : "",
+                      keyFlash.key === " " && keyFlash.type === "wrong" ? "wrong-flash" : "",
+                    ].join(" ")}
+                    data-key="SPACE"
                   >
                     SPACE
                   </div>
                 </div>
                 <div className="hands">
-                  {['LP', 'LR', 'LM', 'LI', 'LI', 'RI', 'RM', 'RR', 'RP', 'RP'].map((finger, idx) => (
-                    <div 
-                      key={idx}
-                      className={`finger ${activeFingers.has(finger) ? 'active' : ''}`}
-                      data-finger={finger}
-                    />
+                  {["LP", "LR", "LM", "LI", "LI", "RI", "RM", "RR", "RP", "RP"].map((finger, idx) => (
+                    <div key={idx} className={["finger", activeFingers.has(finger) ? "active" : ""].join(" ")} data-finger={finger} />
                   ))}
                 </div>
-                <div className="legend">Keys & fingers highlight for the **next** character.</div>
+                <div className="legend">Next key finger are highlighted.</div>
               </div>
-              <input 
-                ref={hiddenInputRef}
-                className="hidden-input" 
-                aria-hidden="true"
-                readOnly
-              />
             </div>
+
+            <input ref={hiddenInputRef} className="hidden-input" aria-hidden="true" readOnly />
+
             <footer className="player-footer">
-              <button className="btn" onClick={closePlayer}>Exit</button>
-              <div style={{ display: 'flex', gap: '.5rem' }}>
+              <button className="btn" onClick={() => (reviewVisible ? returnToLessons() : closePlayer())}>
+                Exit
+              </button>
+              <div style={{ display: "flex", gap: ".5rem" }}>
                 <button className="btn" onClick={restartLesson}>Restart</button>
                 {currentLesson.finished && (
                   <button className="btn" onClick={() => setReviewVisible(true)}>Review</button>
@@ -344,21 +349,22 @@ export default function LessonsPage() {
         </div>
       )}
 
-      {/* Review Overlay */}
       {reviewVisible && currentLesson?.reviewData && (
         <div className="review-overlay" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
           <div className="review">
             <header>
-              <h3 id="reviewTitle">{currentLesson.reviewData.title || 'Lesson Review'}</h3>
-              <button className="btn" onClick={() => setReviewVisible(false)}>Close</button>
+              <h3 id="reviewTitle">{currentLesson.reviewData.title} Review</h3>
+              <button className="icon-close" aria-label="Close" onClick={returnToLessons}>×</button>
             </header>
-            <div className="stats">
-              <span className="chip">WPM: <strong>{currentLesson.reviewData.wpm}</strong></span>
-              <span className="chip">Accuracy: <strong>{currentLesson.reviewData.acc}%</strong></span>
-              <span className="chip">Errors: <strong>{currentLesson.reviewData.mistakes.length}</strong></span>
-              <span className="chip">Typed: <strong>{currentLesson.reviewData.total}</strong></span>
-              <span className="chip">Date: <strong>{new Date(currentLesson.reviewData.date).toLocaleString()}</strong></span>
+
+            <div className="stats" id="reviewStats">
+              <span className="chip">WPM <strong>{currentLesson.reviewData.wpm}</strong></span>
+              <span className="chip">Accuracy <strong>{currentLesson.reviewData.acc}</strong></span>
+              <span className="chip">Errors <strong>{currentLesson.reviewData.mistakes.length}</strong></span>
+              <span className="chip">Typed <strong>{currentLesson.reviewData.total}</strong></span>
+              <span className="chip">Date <strong>{new Date(currentLesson.reviewData.date).toLocaleString()}</strong></span>
             </div>
+
             <div className="panel">
               <div className="mistakes">
                 <table>
@@ -371,28 +377,27 @@ export default function LessonsPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentLesson.reviewData.mistakes.slice(0, 80).map((m, idx) => (
+                    {currentLesson.reviewData.mistakes.slice(0, 120).map((m, idx) => (
                       <tr key={idx} className="bad">
                         <td>{idx + 1}</td>
-                        <td>{m.expected === ' ' ? '⎵' : m.expected}</td>
-                        <td>{m.typed === ' ' ? '⎵' : m.typed}</td>
-                        <td>{m.correct ? '✓' : '✗'}</td>
+                        <td>{m.expected === " " ? "⎵" : m.expected}</td>
+                        <td>{m.typed === " " ? "⎵" : m.typed}</td>
+                        <td>{m.correct ? "✓" : "✗"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
               <div className="heat">
-                <div className="subtitle" style={{ margin: '0 0 .4rem 0' }}>Mistake heat</div>
+                <div className="subtitle" style={{ margin: "0 0 .4rem 0" }}>Mistake heat</div>
                 <div className="heat-grid">
                   {Object.entries(currentLesson.reviewData.counts)
                     .sort((a, b) => b[1] - a[1])
                     .map(([ch, count], idx) => (
                       <div key={idx} className="heat-cell">
-                        <div style={{ fontSize: '1.1rem', marginBottom: '.25rem' }}>
-                          {ch === ' ' ? '⎵' : ch}
-                        </div>
-                        <div className="muted">{count} error{count > 1 ? 's' : ''}</div>
+                        <div style={{ fontSize: "1.1rem", marginBottom: ".25rem" }}>{ch === " " ? "⎵" : ch}</div>
+                        <div className="muted">{count} error{count === 1 ? "" : "s"}</div>
                       </div>
                     ))}
                 </div>

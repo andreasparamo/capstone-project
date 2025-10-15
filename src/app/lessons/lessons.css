@@ -352,3 +352,61 @@
     height: 180px; 
   } 
 }
+
+/* === Appended updates to match new lessons.html === */
+.lesson-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.review {
+  width: min(720px, 92vw);
+  max-height: 80vh;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+}
+
+.review header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.icon-close {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #cfd0e8;
+  cursor: pointer;
+  font-size: 1.3rem;
+}
+.icon-close:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mistakes {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f0f13;
+  border-radius: 12px;
+  padding: 0.75rem;
+  max-height: 55vh;
+  overflow: auto;
+}
+
+.heat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+@media (min-width: 1024px) {
+  .heat-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
