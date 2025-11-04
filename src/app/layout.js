@@ -18,7 +18,7 @@ export default function RootLayout({ children }) {
             <Link href="/" className="logo">LearnToType</Link>
             <nav>
               <ul className="nav-links">
-                <li><Link href="/">Test</Link></li>
+                <li><Link href="/tests">Tests</Link></li>
                 <li><Link href="/lessons">Lessons</Link></li>
                 <li><Link href="/games">Games</Link></li>
                 <li><Link href="/progress">Progress</Link></li>
