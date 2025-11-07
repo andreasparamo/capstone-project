@@ -10,6 +10,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { auth } from '@/lib/firebase';
+import { createUserProfile } from '@/lib/firestoreService';
 
 const AuthContext = createContext(); //Empty container that will hold authentication data and functions
 
@@ -29,17 +30,51 @@ export function AuthProvider({children}){
         return unsubscribe; //stops listening to auth changed
     }, []);
 
-const signup = (email, password) => {
-    return createUserWithEmailAndPassword(auth, email, password);
+const signup = async (email, password) => {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Create user profile in Firestore
+    await createUserProfile(userCredential.user.uid, {
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName || "",
+        stats: {
+            averageWPM: 0,
+            accuracy: 0,
+            testsCompleted: 0,
+            timePracticed: 0,
+            bestWPM: 0,
+            currentStreak: 0,
+            lessonsCompleted: 0
+        }
+    });
+
+    return userCredential;
 };
 
 const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
 };
 
-const loginWithGoogle = () => {
+const loginWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
+    const userCredential = await signInWithPopup(auth, provider);
+
+    // Create user profile in Firestore if it doesn't exist (first time Google login)
+    await createUserProfile(userCredential.user.uid, {
+        email: userCredential.user.email,
+        displayName: userCredential.user.displayName || "",
+        stats: {
+            averageWPM: 0,
+            accuracy: 0,
+            testsCompleted: 0,
+            timePracticed: 0,
+            bestWPM: 0,
+            currentStreak: 0,
+            lessonsCompleted: 0
+        }
+    });
+
+    return userCredential;
 };
 
 const logout = () =>{

@@ -1,6 +1,6 @@
 import "./globals.css";
-import Link from "next/link";
 import { AuthProvider } from "../../context/AuthContext";
+import ProtectedRoute from "@/src/components/ProtectedRoute";
 
 export const metadata = {
   title: "LearnToType - Master Your Typing Skills",
@@ -12,7 +12,9 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
-          {children}  
+          <ProtectedRoute>
+            {children}
+          </ProtectedRoute>
         </AuthProvider>
       </body>
     </html>
