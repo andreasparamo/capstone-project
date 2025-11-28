@@ -94,7 +94,7 @@ export default function Navbar() {
                 <Link href="/leaderboard">Leaderboard</Link>
               </li>
               <li>
-                <Link href="/dashboard">Progress</Link>
+                <Link href="/progress">Progress</Link>
               </li>
             </ul>
           </nav>
