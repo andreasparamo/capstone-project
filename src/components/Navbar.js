@@ -76,13 +76,13 @@ export default function Navbar() {
     <>
       <header className="header">
         <div className="nav-container">
-          <Link href="/" className="logo">
+          <Link href="/landingPage" className="logo">
             LearnToType
           </Link>
           <nav>
             <ul className="nav-links">
               <li>
-                <Link href="/">Test</Link>
+                <Link href="/tests">Tests</Link>
               </li>
               <li>
                 <Link href="/lessons">Lessons</Link>
@@ -91,10 +91,10 @@ export default function Navbar() {
                 <Link href="/games">Games</Link>
               </li>
               <li>
-                <Link href="/progress">Progress</Link>
+                <Link href="/leaderboard">Leaderboard</Link>
               </li>
               <li>
-                <Link href="/leaderboard">Leaderboard</Link>
+                <Link href="/dashboard">Progress</Link>
               </li>
             </ul>
           </nav>
@@ -103,8 +103,41 @@ export default function Navbar() {
               className="dropdown-toggle"
               onClick={toggleDropdown}
               aria-label="User menu"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                padding: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              }}
             >
-              <img src="https://via.placeholder.com/40" alt="Profile Picture" />
+              <svg 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="white" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
             </button>
             <div className="dropdown-menu" id="myDropdown">
               <a href="#" onClick={openProfileModal}>Profile</a>

@@ -14,6 +14,10 @@ export default function ProtectedRoute({ children }) {
     if (!loading && !user && pathname !== "/") {
       router.push("/");
     }
+    // If user is logged in and on login page, redirect to landing page
+    if (!loading && user && pathname === "/") {
+      router.push("/landingPage");
+    }
   }, [user, loading, router, pathname]);
 
   // Show loading state while checking authentication
@@ -23,20 +27,22 @@ export default function ProtectedRoute({ children }) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        fontSize: '1.2rem',
+        color: '#cfd0e8'
       }}>
         <p>Loading...</p>
       </div>
     );
   }
 
-  // If on login page, always show it (without navbar)
-  if (pathname === "/") {
+  // If on login page and not authenticated, show login page without navbar
+  if (pathname === "/" && !user) {
     return <>{children}</>;
   }
 
-  // If user is authenticated, show the navbar and protected content
-  if (user) {
+  // If user is authenticated and not on login page, show the navbar and protected content
+  if (user && pathname !== "/") {
     return (
       <>
         <Navbar />

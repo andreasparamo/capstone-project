@@ -13,13 +13,6 @@ export default function Login() {
   const { login, signup, loginWithGoogle, user } = useAuth();
   const router = useRouter();
 
-  // Redirect to landing page if already logged in
-  useEffect(() => {
-    if (user) {
-      router.push("/landingPage");
-    }
-  }, [user, router]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -31,7 +24,7 @@ export default function Login() {
       } else {
         await login(email, password);
       }
-      router.push("/landingPage");
+      // User will be automatically redirected by ProtectedRoute
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,7 +38,7 @@ export default function Login() {
 
     try {
       await loginWithGoogle();
-      router.push("/landingPage");
+      // User will be automatically redirected by ProtectedRoute
     } catch (err) {
       setError(err.message);
     } finally {
