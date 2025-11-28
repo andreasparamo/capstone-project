@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LearnToType - Lessons</title>
+  <style>
+    body{background:#000;color:#ededed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,Cantarell,'Fira Sans','Droid Sans','Helvetica Neue',sans-serif;line-height:1.6}
+    *{margin:0;padding:0;box-sizing:border-box}
+    .header{background:rgba(0,0,0,.8);border-bottom:1px solid rgba(255,255,255,.1);padding:1rem 0;position:sticky;top:0;z-index:100;backdrop-filter:blur(20px)}
+    .nav-container{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:1.8rem;font-weight:600;color:#ededed;text-decoration:none;cursor:pointer}
+    .nav-links{display:flex;gap:2rem;list-style:none}
+    .nav-links a{color:#a1a1aa;text-decoration:none;transition:.2s;padding:.5rem 1rem;border-radius:8px}
+    .nav-links a:hover{color:#ededed;background:rgba(255,255,255,.05)}
+
+    .hero{max-width:1200px;margin:2rem auto 0;padding:0 2rem}
+    .title{font-size:2.4rem;font-weight:800;letter-spacing:.2px;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;color:transparent}
+    .subtitle{color:#a1a1aa;margin-top:.5rem}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1rem;max-width:1200px;margin:2rem auto;padding:0 2rem}
+    .card{background:#0b0b0b;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:1rem;display:flex;flex-direction:column;gap:.75rem;transition:.15s}
+    .card:hover{transform:translateY(-2px);border-color:rgba(124,140,246,.4)}
+    .badge{font-size:.75rem;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:.25rem .5rem;color:#c7c7d8}
+    .muted{color:#a1a1aa;font-size:.95rem}
+    .actions{display:flex;gap:.5rem;margin-top:auto}
+    .btn{background:linear-gradient(135deg,#667eea,#764ba2);border:none;border-radius:10px;padding:.6rem .9rem;color:#fff;font-weight:600;cursor:pointer;transition:.2s}
+    .btn:hover{transform:translateY(-1px)}
+
+    .overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.75);z-index:120}
+    .player{width:min(960px,92vw);background:#0b0b0e;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
+    .player-header{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid rgba(255,255,255,.08);background:#0e0e12}
+    .stats{display:flex;gap:.75rem;flex-wrap:wrap}
+    .stat{background:#0f0f13;border:1px solid rgba(255,255,255,.08);padding:.45rem .7rem;border-radius:999px;font-size:.9rem;color:#cfd0e8}
+    .typing-pane{padding:1rem 1.25rem;display:grid;grid-template-rows:1fr auto auto;gap:.75rem}
+    .lesson-text{background:#0e0e12;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:1rem;line-height:2;font-size:1.15rem;height:220px;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}
+    .lesson-text span{padding:.02rem .06rem;border-radius:4px}
+    .char-current{outline:2px solid rgba(124,140,246,.8);background:rgba(124,140,246,.15)}
+    .char-correct{color:#9be39b}
+    .char-wrong{background:rgba(239,68,68,.15);color:#ffb4b4;text-decoration:line-through}
+    .player-footer{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-top:1px solid rgba(255,255,255,.08);background:#0e0e12}
+    .hidden-input{position:absolute;opacity:0;pointer-events:none}
+
+    .kb-wrap{display:grid;gap:.5rem}
+    .kb-row{display:flex;gap:.35rem;justify-content:center}
+    .key{min-width:38px;height:40px;border:1px solid rgba(255,255,255,.08);background:#0e0e12;color:#cbd5e1;border-radius:8px;display:grid;place-items:center;padding:0 .4rem;font-size:.95rem;user-select:none}
+    .key.space{min-width:260px}
+    .key.active{outline:2px solid #8b9bff;box-shadow:0 0 0 4px rgba(139,155,255,.15) inset}
+    .key.correct-flash{background:rgba(34,197,94,.15)}
+    .key.wrong-flash{background:rgba(239,68,68,.18)}
+
+    .hands{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:.2rem;opacity:.85}
+    .finger{height:14px;border-radius:6px;background:#1a1a1d;border:1px solid rgba(255,255,255,.08);transform:translateY(0) scale(1);transition:transform .12s ease,background .12s ease}
+    .finger.active{background:#8b9bff;transform:translateY(-2px) scale(1.06)}
+    .legend{display:flex;justify-content:center;gap:.75rem;color:#9aa3b2;font-size:.8rem}
+
+    .review-overlay{position:fixed;inset:0;display:none;place-items:center;background:rgba(0,0,0,.75);z-index:130}
+    .review{width:min(720px,92vw);max-height:80vh;background:#0b0b0e;border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;display:grid;grid-template-rows:auto auto 1fr}
+    .review header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;border-bottom:1px solid rgba(255,255,255,.08);background:#0e0e12}
+    .review header h3{margin:0;font-size:1.1rem;font-weight:600}
+    .icon-close{width:32px;height:32px;display:grid;place-items:center;background:transparent;border:1px solid rgba(255,255,255,.12);border-radius:8px;color:#cfd0e8;cursor:pointer;font-size:1.3rem}
+    .icon-close:hover{background:rgba(255,255,255,.06)}
+    .review .stats{padding:.75rem 1.25rem;display:flex;gap:1rem;flex-wrap:wrap}
+    .chip{background:#0f0f13;border:1px solid rgba(255,255,255,.08);border-radius:999px;padding:.4rem .7rem;color:#cfd0e8;font-size:.9rem}
+    .panel{display:grid;grid-template-columns:1fr 320px;gap:1rem;padding:1rem 1.25rem}
+    .mistakes{border:1px solid rgba(255,255,255,.08);background:#0f0f13;border-radius:12px;padding:.75rem;max-height:55vh;overflow:auto}
+    .mistakes table{width:100%;border-collapse:collapse;font-size:.95rem}
+    .mistakes th,.mistakes td{border-bottom:1px solid rgba(255,255,255,.08);padding:.3rem .25rem;text-align:left;color:#cbd5e1}
+    .mistakes tr.bad td{color:#ffb4b4}
+    .heat{border:1px solid rgba(255,255,255,.08);background:#0f0f13;border-radius:12px;padding:.75rem}
+    .heat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem}
+    .heat-cell{border:1px solid rgba(255,255,255,.08);background:#0e0e12;border-radius:8px;padding:.5rem;text-align:center}
+
+    @media(max-width:640px){.title{font-size:2rem}.nav-links{display:none}.lesson-text{height:180px}}
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="nav-container">
+      <a href="index.html" class="logo">LearnToType</a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="#">Test</a></li>
+          <li><a href="lessons.html" class="active">Lessons</a></li>
+          <li><a href="#">Games</a></li>
+          <li><a href="#">Progress</a></li>
+          <li><a href="#">Leaderboard</a></li>
+        </ul>
+      </nav>
+      <div class="user-menu">
+        <div class="user-avatar" style="width:32px;height:32px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600">U</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1 class="title">Lessons</h1>
+    <p class="subtitle">Structured practice that scales from home row basics to speed drills.</p>
+  </section>
+
+  <section class="grid" id="lessonsGrid"></section>
+
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+    <div class="player">
+      <header class="player-header">
+        <div style="display:flex;align-items:center;gap:.6rem">
+          <span class="badge" id="playerLevel">Beginner</span>
+          <h2 id="playerTitle">Lesson</h2>
+        </div>
+        <div class="stats">
+          <div class="stat">WPM: <strong id="statWPM">0</strong></div>
+          <div class="stat">Accuracy: <strong id="statACC">100%</strong></div>
+          <div class="stat">Progress: <strong id="statPROG">0%</strong></div>
+        </div>
+      </header>
+      <div class="typing-pane">
+        <div class="lesson-text" id="lessonText"></div>
+        <div class="kb-wrap" aria-hidden="true">
+          <div class="kb-row">
+            <div class="key" data-key="a">A</div>
+            <div class="key" data-key="s">S</div>
+            <div class="key" data-key="d">D</div>
+            <div class="key" data-key="f">F</div>
+            <div class="key" data-key="j">J</div>
+            <div class="key" data-key="k">K</div>
+            <div class="key" data-key="l">L</div>
+            <div class="key" data-key=";">;</div>
+          </div>
+          <div class="kb-row">
+            <div class="key space" data-key=" ">SPACE</div>
+          </div>
+          <div class="hands">
+            <div class="finger" data-finger="LP"></div>
+            <div class="finger" data-finger="LR"></div>
+            <div class="finger" data-finger="LM"></div>
+            <div class="finger" data-finger="LI"></div>
+            <div class="finger" data-finger="LI"></div>
+            <div class="finger" data-finger="RI"></div>
+            <div class="finger" data-finger="RM"></div>
+            <div class="finger" data-finger="RR"></div>
+            <div class="finger" data-finger="RP"></div>
+            <div class="finger" data-finger="RP"></div>
+          </div>
+          <div class="legend">Next key & finger are highlighted.</div>
+        </div>
+        <input class="hidden-input" id="hiddenInput" aria-hidden="true" />
+      </div>
+      <footer class="player-footer">
+        <button class="btn" id="btnExit">Exit</button>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn" id="btnRestart">Restart</button>
+          <button class="btn" id="btnReview" style="display:none">Review</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="review-overlay" id="reviewOverlay" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+    <div class="review">
+      <header>
+        <h3 id="reviewTitle">Review</h3>
+        <button class="icon-close" id="closeReview" aria-label="Close">&times;</button>
+      </header>
+      <div class="stats" id="reviewStats"></div>
+      <div class="panel">
+        <div class="mistakes">
+          <table id="mistakesTable">
+            <thead><tr><th>#</th><th>Expected</th><th>Typed</th><th>Result</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="heat">
+          <div class="subtitle" style="margin:0 0 .4rem 0">Mistake heat</div>
+          <div class="heat-grid" id="heatGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+
+    const LESSONS=[
+      {id:'beg-1-home-row-left',title:'Home Row — Left Hand',level:'Beginner',description:'Left-hand home-row drills to build accuracy.',text:'aaaa ssss dddd ffff a s d f asdf asdf asdf asdf  as as as as  s d f a  asdf asdf asdf asdf  aaaa ssss dddd ffff'},
+      {id:'beg-2-home-row-right',title:'Home Row — Right Hand',level:'Beginner',description:'Right-hand home-row drills to balance speed.',text:'jjjj kkkk llll ;;;; j k l ; jkl; jkl; jkl; jkl;  jk jk jk jk  l; l; l; l;  jjjj kkkk llll ;;;;'},
+      {id:'beg-3-home-row-words',title:'Home Row Words I',level:'Beginner',description:'Short, simple words from home-row letters.',text:'as as as; dad; salad; alas; sad; fall; ask; all; as;  asdf jkl; asdf jkl;  lass; fall; ask; as; as; as;'},
+      {id:'beg-4-home-row-words-2',title:'Home Row Words II',level:'Beginner',description:'Slightly longer patterns and spacing.',text:'sad lad; add; as if; fall as; ask a lad;  salad as if; as; as;  add all; fall; as if;  lad; lad; sad;'},
+      {id:'beg-5-home-row-mixed',title:'Home Row Mixed Drill',level:'Beginner',description:'Combine left/right hands with rhythm.',text:'asdf jkl; asdf jkl;  a s d f j k l ;  as df jk l;  asdfjkl; asdfjkl;  a s d f  j k l ;  asdf jkl;'}
+    ];
+
+    const grid=document.getElementById('lessonsGrid');
+    LESSONS.forEach(lesson=>{
+      const card=document.createElement('article');
+      card.className='card';
+      card.innerHTML=`
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem">
+          <h3>${lesson.title}</h3>
+          <span class="badge">${lesson.level}</span>
+        </div>
+        <p class="muted">${lesson.description}</p>
+        <div class="actions"><button class="btn" data-start="${lesson.id}">Start</button></div>`;
+      grid.appendChild(card);
+    });
+
+    const overlay=document.getElementById('overlay');
+    const lessonTextEl=document.getElementById('lessonText');
+    const hiddenInput=document.getElementById('hiddenInput');
+    const statWPM=document.getElementById('statWPM');
+    const statACC=document.getElementById('statACC');
+    const statPROG=document.getElementById('statPROG');
+    const playerTitle=document.getElementById('playerTitle');
+    const playerLevel=document.getElementById('playerLevel');
+    const btnExit=document.getElementById('btnExit');
+    const btnRestart=document.getElementById('btnRestart');
+    const btnReview=document.getElementById('btnReview');
+
+    const reviewOverlay=document.getElementById('reviewOverlay');
+    const closeReviewBtn=document.getElementById('closeReview');
+    const reviewStats=document.getElementById('reviewStats');
+    const mistakesTableBody=document.querySelector('#mistakesTable tbody');
+    const heatGrid=document.getElementById('heatGrid');
+
+    const fingerMap={'a':'LP','s':'LR','d':'LM','f':'LI','j':'RI','k':'RM','l':'RR',';':'RP',' ':'RP'};
+    function clearKeyHighlights(){document.querySelectorAll('.key').forEach(k=>k.classList.remove('active','correct-flash','wrong-flash'));document.querySelectorAll('.finger').forEach(f=>f.classList.remove('active'))}
+    function highlightForChar(ch){clearKeyHighlights();const key=document.querySelector(`.key[data-key="${ch}"]`);if(key)key.classList.add('active');const finger=document.querySelector(`.finger[data-finger="${fingerMap[ch]}"]`);if(finger)finger.classList.add('active')}
+
+
+    const PAGE_CHARS=180;
+    let current=null; // {lesson,pages,pageIndex,chars,idx,errors,correct,startedAt,finished,log}
+
+    function makePages(text){const words=text.split(/(\s+)/);const pages=[];let buf='';for(const w of words){if((buf+w).length>PAGE_CHARS&&buf.length>0){pages.push(buf);buf=w}else{buf+=w}}if(buf)pages.push(buf);return pages}
+
+    function renderPage(){const page=current.pages[current.pageIndex]||'';current.chars=[...page];current.idx=0;lessonTextEl.innerHTML=current.chars.map((ch,i)=>`<span data-i="${i}">${ch}</span>`).join('');highlightIdx(0);highlightForChar(current.chars[0]||'')}
+
+    function openPlayer(lesson){const pages=makePages(lesson.text);current={lesson,pages,pageIndex:0,chars:[],idx:0,errors:0,correct:0,startedAt:null,finished:false,log:[]};playerTitle.textContent=lesson.title;playerLevel.textContent=lesson.level;statWPM.textContent='0';statACC.textContent='100%';statPROG.textContent='0%';overlay.style.display='grid';renderPage();setTimeout(()=>hiddenInput.focus(),20)}
+
+    function closePlayer(){overlay.style.display='none';current=null;clearKeyHighlights();hiddenInput.blur()}
+
+    function highlightIdx(i){document.querySelectorAll('.char-current').forEach(el=>el.classList.remove('char-current'));const el=lessonTextEl.querySelector(`[data-i="${i}"]`);if(el)el.classList.add('char-current')}
+
+    function updateStats(){if(!current||!current.startedAt)return;const elapsedMin=(Date.now()-current.startedAt)/60000;const words=current.correct/5;const wpm=elapsedMin>0?Math.round(words/elapsedMin):0;const total=current.correct+current.errors;const acc=total?Math.max(0,Math.round(current.correct/total*100)):100;const totalChars=current.pages.join('').length;const typedGlobal=current.pages.slice(0,current.pageIndex).join('').length+current.idx;const prog=totalChars?Math.round(typedGlobal/totalChars*100):0;statWPM.textContent=wpm;statACC.textContent=acc+'%';statPROG.textContent=prog+'%'}
+
+    function finishLesson(){current.finished=true;updateStats();const finalWPM=Number(statWPM.textContent);const finalACC=Number(statACC.textContent.replace('%',''));const mistakes=(current.log||[]).filter(r=>!r.correct);const counts={};mistakes.forEach(m=>counts[m.expected]=(counts[m.expected]||0)+1);openReview({wpm:finalWPM,acc:finalACC,mistakes,counts,total:current.pages?current.pages.join('').length:(current.chars?current.chars.length:0),date:new Date().toISOString(),title:(current&&current.lesson&&current.lesson.title)||'Lesson'});btnReview.style.display='inline-block'}
+
+    function nextPageOrFinish(){if(current.pageIndex<current.pages.length-1){current.pageIndex++;renderPage()}else{finishLesson()}}
+
+    function flashKey(ch,ok){const key=document.querySelector(`.key[data-key="${ch}"]`);if(!key)return;key.classList.add(ok?'correct-flash':'wrong-flash');setTimeout(()=>key.classList.remove('correct-flash','wrong-flash'),150)}
+
+    function handleKey(ch){if(!current||current.finished)return;if(current.startedAt===null)current.startedAt=Date.now();const span=lessonTextEl.querySelector(`[data-i="${current.idx}"]`);const expected=current.chars[current.idx];if(!span)return;let ok=false;if(ch===expected){span.classList.add('char-correct');current.correct++;current.idx++;ok=true}else{span.classList.add('char-wrong');current.errors++;current.idx++}current.log.push({page:current.pageIndex,i:current.idx-1,expected,typed:ch,correct:ok});flashKey(expected,ok);highlightIdx(current.idx);highlightForChar(current.chars[current.idx]||'');updateStats();if(current.idx>=current.chars.length){nextPageOrFinish()}}
+
+
+    function openReview(rec){rec=rec||{};rec.mistakes=Array.isArray(rec.mistakes)?rec.mistakes:[];rec.counts=rec.counts&&typeof rec.counts==='object'?rec.counts:{};rec.wpm=Number.isFinite(rec.wpm)?rec.wpm:0;rec.acc=Number.isFinite(rec.acc)?rec.acc:100;rec.total=Number.isFinite(rec.total)?rec.total:0;rec.date=rec.date||new Date().toISOString();reviewStats.innerHTML=`<span class="chip">WPM: <strong>${rec.wpm}</strong></span><span class="chip">Accuracy: <strong>${rec.acc}%</strong></span><span class="chip">Errors: <strong>${rec.mistakes.length}</strong></span><span class="chip">Typed: <strong>${rec.total}</strong></span><span class="chip">Date: <strong>${new Date(rec.date).toLocaleString()}</strong></span>`;document.getElementById('reviewTitle').textContent='Review';mistakesTableBody.innerHTML='';rec.mistakes.slice(0,120).forEach((m,idx)=>{const tr=document.createElement('tr');tr.className='bad';tr.innerHTML=`<td>${idx+1}</td><td>${m.expected===' '?'⎵':m.expected}</td><td>${m.typed===' '?'⎵':m.typed}</td><td>${m.correct?'✓':'✗'}</td>`;mistakesTableBody.appendChild(tr)});heatGrid.innerHTML='';Object.entries(rec.counts).sort((a,b)=>b[1]-a[1]).forEach(([ch,count])=>{const cell=document.createElement('div');cell.className='heat-cell';cell.innerHTML=`<div style="font-size:1.1rem;margin-bottom:.25rem;">${ch===' '?'⎵':ch}</div><div class="muted">${count} error${count>1?'s':''}</div>`;heatGrid.appendChild(cell)});overlay.style.display='none';reviewOverlay.style.display='grid'}
+
+    grid.addEventListener('click',e=>{const btn=e.target.closest('[data-start]');if(!btn)return;const lesson=LESSONS.find(l=>l.id===btn.getAttribute('data-start'));if(lesson)openPlayer(lesson)});
+    hiddenInput.addEventListener('keydown',e=>{if(!current)return;if(e.key.length===1){handleKey(e.key);return}if(e.key==='Spacebar'||e.code==='Space'){e.preventDefault();handleKey(' ')}if(e.key==='Escape'){e.preventDefault();closePlayer()}if(e.key==='Enter'&&current.finished){e.preventDefault();reviewOverlay.style.display='grid'}});
+    btnExit.addEventListener('click',()=>{if(reviewOverlay.style.display==='grid')returnToLessons();else closePlayer()});
+    btnRestart.addEventListener('click',()=>{if(current)openPlayer(current.lesson)});
+    btnReview.addEventListener('click',()=>{if(current){overlay.style.display='none';reviewOverlay.style.display='grid'}});
+
+    function returnToLessons(){reviewOverlay.style.display='none';overlay.style.display='none';current=null;clearKeyHighlights();hiddenInput.blur()}
+    closeReviewBtn.addEventListener('click',returnToLessons);
+    reviewOverlay.addEventListener('click',e=>{if(e.target===reviewOverlay)returnToLessons()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&reviewOverlay.style.display==='grid')returnToLessons()});
+
+    (function(){try{console.assert(document.querySelectorAll('.card').length===5,'Five lesson cards render');openReview({});console.assert(reviewOverlay.style.display==='grid','Review opens');returnToLessons();console.assert(reviewOverlay.style.display==='none','Review closes');}catch(err){console.warn('Self-tests failed:',err)}})();
+  </script>
+</body>
+</html>

@@ -246,109 +246,154 @@
   font-size: 0.8rem; 
 }
 
-.review-overlay { 
-  position: fixed; 
-  inset: 0; 
-  display: grid; 
-  place-items: center; 
-  background: rgba(0, 0, 0, 0.75); 
-  z-index: 130; 
-}
-
+/* CONSOLIDATED: ensure a single, deterministic .review definition */
 .review { 
-  width: min(920px, 92vw); 
+  /* width from later blocks unified here */
+  width: clamp(640px, 86vw, 1000px);
   background: #0b0b0e; 
   border: 1px solid rgba(255, 255, 255, 0.08); 
   border-radius: 18px; 
   overflow: hidden; 
   display: grid; 
   grid-template-rows: auto auto 1fr; 
+  /* max-height from later block unified here */
+  max-height: 80vh;
 }
 
-.review header { 
-  display: flex; 
-  justify-content: space-between; 
-  align-items: center; 
-  padding: 1rem 1.25rem; 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
-  background: #0e0e12; 
-}
-
-.review .stats { 
-  padding: 0.75rem 1.25rem; 
-  display: flex; 
-  gap: 1rem; 
-  flex-wrap: wrap; 
-}
-
-.chip { 
-  background: #0f0f13; 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  border-radius: 999px; 
-  padding: 0.4rem 0.7rem; 
-  color: #cfd0e8; 
-  font-size: 0.9rem; 
-}
-
-.panel { 
-  display: grid; 
-  grid-template-columns: 1fr 320px; 
-  gap: 1rem; 
-  padding: 1rem 1.25rem; 
-}
-
+/* CONSOLIDATED: single .mistakes rule (adds scroll constraints) */
 .mistakes { 
   border: 1px solid rgba(255, 255, 255, 0.08); 
   background: #0f0f13; 
   border-radius: 12px; 
   padding: 0.75rem; 
+  max-height: 40vh;
+  overflow: auto;
 }
 
-.mistakes table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  font-size: 0.95rem; 
-}
-
-.mistakes th, 
-.mistakes td { 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08); 
-  padding: 0.4rem 0.25rem; 
-  text-align: left; 
-  color: #cbd5e1; 
-}
-
-.mistakes tr.bad td { 
-  color: #ffb4b4; 
-}
-
-.heat { 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  background: #0f0f13; 
-  border-radius: 12px; 
-  padding: 0.75rem; 
-}
-
+/* CONSOLIDATED: single .heat-grid rule; use auto-fill for responsive layout */
 .heat-grid { 
   display: grid; 
-  grid-template-columns: repeat(8, 1fr); 
-  gap: 0.4rem; 
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 0.5rem; 
+  max-height: 40vh; 
+  overflow: auto; 
+  padding-right: 0.25rem; 
+  box-sizing: border-box; 
 }
 
-.heat-cell { 
-  border: 1px solid rgba(255, 255, 255, 0.08); 
-  background: #0e0e12; 
-  border-radius: 8px; 
-  padding: 0.5rem; 
-  text-align: center; 
+/* CONSOLIDATED: single .icon-close rule; keeps sizing/centering consistent */
+.icon-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: #cfd0e8;
+  cursor: pointer;
+  font-size: 1.15rem;
+}
+.icon-close:hover {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-@media (max-width: 640px) { 
-  .title { 
-    font-size: 2rem; 
-  } 
-  
-  .lesson-text { 
-    height: 180px; 
-  } 
+/* ...existing code... */
+
+.mistakes {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f0f13;
+  border-radius: 12px;
+  padding: 0.75rem;
+  max-height: 55vh;
+  overflow: auto;
 }
+
+.heat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+@media (min-width: 1024px) {
+  .heat-grid {
+    grid-template-columns: repeat(8, 1fr);
+  }
+}
+
+.review{width:clamp(640px,86vw,1000px);}
+
+.panel{
+  display:grid;
+  grid-template-columns:1.3fr 1fr;
+  gap:1rem;
+  align-items:start;
+  overflow:hidden;
+}
+
+.heat{min-width:0;}
+
+.heat-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(72px,1fr));
+  gap:.5rem;
+  max-height:40vh;
+  overflow:auto;
+  padding-right:.25rem;
+  box-sizing:border-box;
+}
+
+.mistakes{
+  max-height:40vh;
+  overflow:auto;
+}
+
+@media (max-width:900px){
+  .panel{grid-template-columns:1fr;}
+  .review{width:92vw;}
+  .mistakes,.heat-grid{max-height:34vh;}
+}
+
+.filterbar{
+  max-width:1200px;
+  margin:0 auto 0.75rem;
+  padding:0 2rem;
+  display:flex;
+  gap:.5rem;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.filter-btn{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.12);
+  color:#cfd0e8;
+  border-radius:999px;
+  padding:.45rem .8rem;
+  font-weight:600;
+  cursor:pointer;
+}
+.filter-btn.active{
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  color:#fff;
+  border-color:transparent;
+}
+.icon-close {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  font-size: 1.15rem;
+}
+
+.icon-close span,
+.icon-close::before,
+.icon-close::after {
+  vertical-align: middle;
+}
+

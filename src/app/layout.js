@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "../../context/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import Navbar from "@/src/components/Navbar";
 
 export const metadata = {
   title: "LearnToType - Master Your Typing Skills",
@@ -13,6 +14,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <ProtectedRoute>
+            <Navbar />
             {children}
           </ProtectedRoute>
         </AuthProvider>
