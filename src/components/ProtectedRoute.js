@@ -30,7 +30,7 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  // If on login page, always show it (without navbar)
+  // If on login page, always show it 
   if (pathname === "/") {
     return <>{children}</>;
   }
