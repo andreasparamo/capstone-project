@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef, useCallback } from "react";
-import "./lessons.css";
+import styles from "./lessons.module.css";
 
 const LESSONS = [
   { 
@@ -345,91 +345,91 @@ export default function LessonsPage() {
 
   return (
     <main>
-      <section className="hero">
-        <h1 className="title">Lessons</h1>
-        <p className="subtitle">
+      <section className={styles.hero}>
+        <h1 className={styles.title}>Lessons</h1>
+        <p className={styles.subtitle}>
           Structured practice that scales from home row basics to speed drills.
         </p>
       </section>
 
-      <section className="filterbar">
+      <section className={styles.filterbar}>
         <button
-          className={["filter-btn", levelFilter==="All" ? "active" : ""].join(" ")}
+          className={[styles["filter-btn"], levelFilter==="All" ? styles.active : ""].join(" ")}
           onClick={() => setLevelFilter("All")}
         >
           All
         </button>
         <button
-          className={["filter-btn", levelFilter==="Beginner" ? "active" : ""].join(" ")}
+          className={[styles["filter-btn"], levelFilter==="Beginner" ? styles.active : ""].join(" ")}
           onClick={() => setLevelFilter("Beginner")}
         >
           Beginner
         </button>
         <button
-          className={["filter-btn", levelFilter==="Intermediate" ? "active" : ""].join(" ")}
+          className={[styles["filter-btn"], levelFilter==="Intermediate" ? styles.active : ""].join(" ")}
           onClick={() => setLevelFilter("Intermediate")}
         >
           Intermediate
         </button>
       </section>
 
-      <section className="grid">
+      <section className={styles.grid}>
         {filtered.map((lesson) => (
-          <article key={lesson.id} className="card">
+          <article key={lesson.id} className={styles.card}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: ".5rem" }}>
               <h3>{lesson.title}</h3>
-              <span className="badge">{lesson.level}</span>
+              <span className={styles.badge}>{lesson.level}</span>
             </div>
-            <p className="muted">{lesson.description}</p>
-            <div className="actions">
-              <button className="btn" onClick={() => startLesson(lesson)}>Start</button>
+            <p className={styles.muted}>{lesson.description}</p>
+            <div className={styles.actions}>
+              <button className={styles.btn} onClick={() => startLesson(lesson)}>Start</button>
             </div>
           </article>
         ))}
       </section>
 
       {overlayVisible && currentLesson && (
-        <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="playerTitle">
-          <div className="player">
-            <header className="player-header">
+        <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="playerTitle">
+          <div className={styles.player}>
+            <header className={styles["player-header"]}>
               <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }}>
-                <span className="badge">{currentLesson.lesson.level}</span>
+                <span className={styles.badge}>{currentLesson.lesson.level}</span>
                 <h2 id="playerTitle">{currentLesson.lesson.title}</h2>
               </div>
-              <div className="stats">
-                <div className="stat">WPM <strong id="statWPM">{stats.wpm}</strong></div>
-                <div className="stat">Accuracy <strong id="statACC">{stats.acc}</strong></div>
-                <div className="stat">Progress <strong id="statPROG">{stats.prog}</strong></div>
+              <div className={styles.stats}>
+                <div className={styles.stat}>WPM <strong id="statWPM">{stats.wpm}</strong></div>
+                <div className={styles.stat}>Accuracy <strong id="statACC">{stats.acc}</strong></div>
+                <div className={styles.stat}>Progress <strong id="statPROG">{stats.prog}</strong></div>
               </div>
             </header>
 
-            <div className="typing-pane">
-              <div className="lesson-text" id="lessonText">
+            <div className={styles["typing-pane"]}>
+              <div className={styles["lesson-text"]} id="lessonText">
                 {currentLesson.chars.map((ch, i) => {
-                  const classes = [];
-                  if (i === currentLesson.idx) classes.push("char-current");
+                  const spanClasses = [];
+                  if (i === currentLesson.idx) spanClasses.push(styles["char-current"]);
                   const logEntry = currentLesson.log.find(
                     (l) => l.i === i && l.page === currentLesson.pageIndex
                   );
-                  if (logEntry) classes.push(logEntry.correct ? "char-correct" : "char-wrong");
+                  if (logEntry) spanClasses.push(logEntry.correct ? styles["char-correct"] : styles["char-wrong"]);
                   return (
-                    <span key={i} data-i={i} className={classes.join(" ")}>
+                    <span key={i} data-i={i} className={spanClasses.join(" ")}>
                       {ch === " " ? "\u00A0" : ch}
                     </span>
                   );
                 })}
               </div>
 
-              <div className="kb-wrap" aria-hidden="true">
-                <div className="kb-row">
+              <div className={styles["kb-wrap"]} aria-hidden="true">
+                <div className={styles["kb-row"]}>
                   {["a", "s", "d", "f", "j", "k", "l", ";"].map((key) => (
                     <div
                       key={key}
                       className={[
-                        "key",
-                        activeKeys.has(key) ? "active" : "",
-                        keyFlash.key === key && keyFlash.type === "correct" ? "correct-flash" : "",
-                        keyFlash.key === key && keyFlash.type === "wrong" ? "wrong-flash" : "",
+                        styles.key,
+                        activeKeys.has(key) ? styles.active : "",
+                        keyFlash.key === key && keyFlash.type === "correct" ? styles["correct-flash"] : "",
+                        keyFlash.key === key && keyFlash.type === "wrong" ? styles["wrong-flash"] : "",
                       ].join(" ")}
                       data-key={key}
                     >
@@ -437,39 +437,43 @@ export default function LessonsPage() {
                     </div>
                   ))}
                 </div>
-                <div className="kb-row">
+                <div className={styles["kb-row"]}>
                   <div
                     className={[
-                      "key",
-                      "space",
-                      activeKeys.has(" ") ? "active" : "",
-                      keyFlash.key === " " && keyFlash.type === "correct" ? "correct-flash" : "",
-                      keyFlash.key === " " && keyFlash.type === "wrong" ? "wrong-flash" : "",
+                      styles.key,
+                      styles.space,
+                      activeKeys.has(" ") ? styles.active : "",
+                      keyFlash.key === " " && keyFlash.type === "correct" ? styles["correct-flash"] : "",
+                      keyFlash.key === " " && keyFlash.type === "wrong" ? styles["wrong-flash"] : "",
                     ].join(" ")}
                     data-key="SPACE"
                   >
                     SPACE
                   </div>
                 </div>
-                <div className="hands">
+                <div className={styles.hands}>
                   {["LP", "LR", "LM", "LI", "LI", "RI", "RM", "RR", "RP", "RP"].map((finger, idx) => (
-                    <div key={idx} className={["finger", activeFingers.has(finger) ? "active" : ""].join(" ")} data-finger={finger} />
+                    <div
+                      key={idx}
+                      className={[styles.finger, activeFingers.has(finger) ? styles.active : ""].join(" ")}
+                      data-finger={finger}
+                    />
                   ))}
                 </div>
-                <div className="legend">Next key finger are highlighted.</div>
+                <div className={styles.legend}>Next key finger are highlighted.</div>
               </div>
             </div>
 
-            <input ref={hiddenInputRef} className="hidden-input" aria-hidden="true" readOnly />
+            <input ref={hiddenInputRef} className={styles["hidden-input"]} aria-hidden="true" readOnly />
 
-            <footer className="player-footer">
-              <button className="btn" onClick={() => (reviewVisible ? setReviewVisible(false) : closePlayer())}>
+            <footer className={styles["player-footer"]}>
+              <button className={styles.btn} onClick={() => (reviewVisible ? setReviewVisible(false) : closePlayer())}>
                 Exit
               </button>
               <div style={{ display: "flex", gap: ".5rem" }}>
-                <button className="btn" onClick={restartLesson}>Restart</button>
+                <button className={styles.btn} onClick={restartLesson}>Restart</button>
                 {currentLesson.finished && (
-                  <button className="btn" onClick={() => setReviewVisible(true)}>Review</button>
+                  <button className={styles.btn} onClick={() => setReviewVisible(true)}>Review</button>
                 )}
               </div>
             </footer>
@@ -478,23 +482,23 @@ export default function LessonsPage() {
       )}
 
       {reviewVisible && currentLesson?.reviewData && (
-        <div className="review-overlay" role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
-          <div className="review">
+        <div className={styles["review-overlay"]} role="dialog" aria-modal="true" aria-labelledby="reviewTitle">
+          <div className={styles.review}>
             <header>
               <h3 id="reviewTitle">{currentLesson.reviewData.title} Review</h3>
-              <button className="icon-close" aria-label="Close" onClick={() => setReviewVisible(false)}>×</button>
+              <button className={styles["icon-close"]} aria-label="Close" onClick={() => setReviewVisible(false)}>×</button>
             </header>
 
-            <div className="stats" id="reviewStats">
-              <span className="chip">WPM <strong>{currentLesson.reviewData.wpm}</strong></span>
-              <span className="chip">Accuracy <strong>{currentLesson.reviewData.acc}</strong></span>
-              <span className="chip">Errors <strong>{currentLesson.reviewData.mistakes.length}</strong></span>
-              <span className="chip">Typed <strong>{currentLesson.reviewData.total}</strong></span>
-              <span className="chip">Date <strong>{new Date(currentLesson.reviewData.date).toLocaleString()}</strong></span>
+            <div className={styles.stats} id="reviewStats">
+              <span className={styles.chip}>WPM <strong>{currentLesson.reviewData.wpm}</strong></span>
+              <span className={styles.chip}>Accuracy <strong>{currentLesson.reviewData.acc}</strong></span>
+              <span className={styles.chip}>Errors <strong>{currentLesson.reviewData.mistakes.length}</strong></span>
+              <span className={styles.chip}>Typed <strong>{currentLesson.reviewData.total}</strong></span>
+              <span className={styles.chip}>Date <strong>{new Date(currentLesson.reviewData.date).toLocaleString()}</strong></span>
             </div>
 
-            <div className="panel">
-              <div className="mistakes">
+            <div className={styles.panel}>
+              <div className={styles.mistakes}>
                 <table>
                   <thead>
                     <tr>
@@ -506,7 +510,7 @@ export default function LessonsPage() {
                   </thead>
                   <tbody>
                     {currentLesson.reviewData.mistakes.slice(0, 120).map((m, idx) => (
-                      <tr key={idx} className="bad">
+                      <tr key={idx} className={styles.bad}>
                         <td>{idx + 1}</td>
                         <td>{m.expected === " " ? "⎵" : m.expected}</td>
                         <td>{m.typed === " " ? "⎵" : m.typed}</td>
@@ -517,15 +521,15 @@ export default function LessonsPage() {
                 </table>
               </div>
 
-              <div className="heat">
-                <div className="subtitle" style={{ margin: "0 0 .4rem 0" }}>Mistake heat</div>
-                <div className="heat-grid">
+              <div className={styles.heat}>
+                <div className={styles.subtitle} style={{ margin: "0 0 .4rem 0" }}>Mistake heat</div>
+                <div className={styles["heat-grid"]}>
                   {Object.entries(currentLesson.reviewData.counts)
                     .sort((a, b) => b[1] - a[1])
                     .map(([ch, count], idx) => (
-                      <div key={idx} className="heat-cell">
+                      <div key={idx} className={styles["heat-cell"]}>
                         <div style={{ fontSize: "1.1rem", marginBottom: ".25rem" }}>{ch === " " ? "⎵" : ch}</div>
-                        <div className="muted">{count} error{count === 1 ? "" : "s"}</div>
+                        <div className={styles.muted}>{count} error{count === 1 ? "" : "s"}</div>
                       </div>
                     ))}
                 </div>

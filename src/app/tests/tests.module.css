@@ -1,0 +1,283 @@
+:root {
+  --bg: #0b0b0e;
+  --panel: #0e0e12;
+  --muted: #a1a1aa;
+  --text: #cfd0e8;
+  --border: rgba(255,255,255,0.08);
+  --accentA: #667eea;
+  --accentB: #764ba2;
+  --error: #ef4444;
+  --good: #9be39b;
+}
+
+.wrap {
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1.25rem 2rem;
+  color: var(--text);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: .2px;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.modes {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+.modeBtn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 999px;
+  padding: .45rem .85rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.modeBtn::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(135deg,#667eea,#764ba2,#a78bfa,#f472b6);
+  background-size: 200% 200%;
+  opacity: 0;
+  transform: translateY(35%) scale(1.2);
+  transition: opacity .18s ease, transform .18s ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.modeBtn:not(.active):hover {
+  transform: translateY(-2px);
+  border-color: rgba(124,140,246,.4);
+  box-shadow: 0 8px 22px rgba(124,140,246,.18);
+}
+.modeBtn:not(.active):hover::before {
+  opacity: .28;
+  transform: translateY(0) scale(1);
+  animation: gradient-pan 4s linear infinite;
+}
+.modeBtn.active {
+  background: linear-gradient(135deg,#667eea,#764ba2,#a78bfa,#f472b6);
+  background-size: 180% 180%;
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 10px 26px rgba(124,140,246,.26);
+  animation: gradient-pan 8s linear infinite;
+}
+.modeBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124,140,246,.35);
+}
+
+.testArea {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem .75rem;
+  line-height: 2.1;
+  transition: opacity .25s ease, filter .25s ease, transform .25s ease;
+}
+
+.word {
+  display: inline-flex;
+  gap: 0;
+  padding: .1rem .25rem;
+  border-radius: 8px;
+  transition: background .2s ease, outline-color .2s ease;
+  /* Fix caret underline position at end-of-word */
+  align-items: baseline;
+}
+.currentWord {
+  outline: 2px solid rgba(124,140,246,.45);
+  outline-offset: 2px;
+  background: rgba(124,140,246,.08);
+}
+
+.char {
+  white-space: pre;
+  color: var(--text);
+  transition: color .16s ease, background-color .16s ease, text-decoration-color .16s ease, border-color .16s ease;
+}
+.wrong {
+  background: rgba(239,68,68,.18);
+  color: #ffb4b4;
+}
+.correct {
+  color: var(--good);
+  background: rgba(155,227,155,.18); /* subtle green highlight */
+}
+.skipped {
+  color: #8e8e99;
+}
+.extra {
+  color: #ffb4b4;
+  border-bottom: 2px solid var(--error);
+}
+
+.hiddenInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  width: 0;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  justify-content: flex-end;
+}
+.action {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px;
+  padding: .55rem .9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease, color .15s ease;
+}
+.action:hover {
+  transform: translateY(-1px);
+  border-color: rgba(124,140,246,.4);
+  box-shadow: 0 8px 22px rgba(124,140,246,.18);
+}
+.primary {
+  background: linear-gradient(135deg,#667eea,#764ba2);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* Results */
+.results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(160px,1fr));
+  gap: .75rem;
+  padding-top: .5rem;
+  border-top: 1px solid var(--border);
+}
+.resultRow {
+  background: #0f0f13;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: .75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.label {
+  color: var(--muted);
+}
+.value {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+/* Subtle fade transitions */
+.fadeIn {
+  opacity: 1;
+  filter: none;
+  transform: translateY(0);
+}
+.fadeOut {
+  opacity: .45;
+  filter: blur(.2px);
+}
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce) {
+  .modeBtn, .modeBtn::before, .words, .action {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Caret on the next character */
+.cursor {
+  position: relative;
+}
+.cursor::after {
+  content: "";
+  position: absolute;
+  left: -0.06ch;
+  right: -0.06ch;
+  bottom: -2px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  box-shadow:
+    0 0 8px rgba(124,140,246,.55),
+    0 0 14px rgba(118,75,162,.45);
+  animation: caret-blink 1s ease-in-out infinite;
+}
+
+/* Caret when at end-of-word (after last character) */
+.caret {
+  position: relative;
+  display: inline-block;   /* make it a box so ::after can anchor */
+  width: 0;                /* zero width caret placeholder */
+  height: 1em;             /* match line box */
+  vertical-align: baseline;
+  align-self: baseline;    /* ensure baseline in flex context */
+  pointer-events: none;
+}
+.caret::after {
+  content: "";
+  position: absolute;
+  left: -0.06ch;
+  right: -0.06ch;
+  bottom: -2px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--accentA), var(--accentB));
+  box-shadow: 0 0 14px rgba(118,75,162,.45);
+  animation: caret-blink 1s ease-in-out infinite;
+}
+
+/* Blink */
+@keyframes caret-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: .2; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cursor::after, .caret::after {
+    animation: none;
+    opacity: 1;
+  }
+}
