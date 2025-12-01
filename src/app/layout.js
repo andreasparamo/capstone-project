@@ -1,6 +1,7 @@
 import "./globals.css";
 import { AuthProvider } from "../../context/AuthContext";
 import ProtectedRoute from "@/src/components/ProtectedRoute";
+import ThemeInitializer from "@/src/components/ThemeInitializer";
 
 export const metadata = {
   title: "LearnToType - Master Your Typing Skills",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body>
         <AuthProvider>
+          <ThemeInitializer />
           <ProtectedRoute>
             {children}
           </ProtectedRoute>
