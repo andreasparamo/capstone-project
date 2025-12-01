@@ -1,0 +1,310 @@
+"use client";
+import { useEffect, useMemo, useRef, useState } from "react";
+import styles from "./tests.module.css";
+
+// Deterministic seed helpers (same on server and client)
+function hashString(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
+  }
+  return h >>> 0;
+}
+function mulberry32(a) {
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function generateWords(count, seed) {
+  const rng = mulberry32(seed >>> 0);
+  const arr = [];
+  for (let i = 0; i < count; i++) {
+    const idx = Math.floor(rng() * WORD_BANK.length);
+    arr.push(WORD_BANK[idx]);
+  }
+  return arr;
+}
+
+const WORD_BANK = [
+  "time","year","people","way","day","man","thing","woman","life","child",
+  "world","school","state","family","student","group","country","problem","hand",
+  "place","case","week","company","system","program","question","work","night","point",
+  "home","water","room","mother","area","money","story","fact","month","lot",
+];
+
+const MODES = {
+  Short: 25,
+  Medium: 50,
+  Long: 100,
+};
+
+export default function TestsPage() {
+  const [mode, setMode] = useState("Short");
+
+  // Seed is deterministic for SSR hydration; we vary it later on user actions.
+  const [seed, setSeed] = useState(() => hashString(`mode:${"Short"}`));
+
+  // Use deterministic words for the initial render (avoids hydration mismatch)
+  const [words, setWords] = useState(() => generateWords(MODES.Short, seed));
+  const [inputs, setInputs] = useState(() => Array(MODES.Short).fill(""));
+  const [index, setIndex] = useState(0);
+  const [startedAt, setStartedAt] = useState(null);
+  const [endedAt, setEndedAt] = useState(null);
+  const [showResults, setShowResults] = useState(false);
+
+  const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Focus hidden input on mount and on click
+  useEffect(() => {
+    focusInput();
+  }, []);
+  function focusInput() {
+    inputRef.current?.focus();
+  }
+
+  // Reset when mode changes (deterministic seed for this mode)
+  useEffect(() => {
+    const nextSeed = hashString(`mode:${mode}`);
+    const nextWords = generateWords(MODES[mode], nextSeed);
+    setSeed(nextSeed);
+    setWords(nextWords);
+    setInputs(Array(nextWords.length).fill(""));
+    setIndex(0);
+    setStartedAt(null);
+    setEndedAt(null);
+    setShowResults(false);
+  }, [mode]);
+
+  const stats = useMemo(() => {
+    const end = endedAt ?? (startedAt ? Date.now() : null);
+    const elapsedMs = startedAt && end ? end - startedAt : 0;
+
+    let correctChars = 0;
+    let wrongChars = 0;
+    let extraChars = 0;
+    let skippedChars = 0;
+
+    words.forEach((w, wi) => {
+      const typed = inputs[wi] ?? "";
+      const minLen = Math.min(w.length, typed.length);
+
+      for (let i = 0; i < minLen; i++) {
+        if (typed[i] === w[i]) correctChars++;
+        else wrongChars++;
+      }
+      if (typed.length > w.length) {
+        extraChars += typed.length - w.length;
+      } else if (typed.length < w.length) {
+        // Count untyped as skipped once the user moved on from the word
+        if (wi < index || (wi === index && showResults)) {
+          skippedChars += w.length - typed.length;
+        }
+      }
+    });
+
+    const mistakes = wrongChars + extraChars + skippedChars;
+    const totalConsidered = correctChars + mistakes;
+    const acc = totalConsidered > 0 ? Math.round((correctChars / totalConsidered) * 100) : 100;
+
+    const minutes = elapsedMs > 0 ? elapsedMs / 60000 : 1;
+    const wpm = Math.max(0, Math.round((correctChars / 5) / minutes));
+
+    return { wpm, acc, mistakes, elapsedMs };
+  }, [inputs, words, startedAt, endedAt, index, showResults]);
+
+  function onKeyDown(e) {
+    if (showResults) return;
+
+    const key = e.key;
+
+    // Start timer on first printable input
+    if (!startedAt && key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      setStartedAt(Date.now());
+    }
+
+    if (key === "Backspace") {
+      e.preventDefault();
+      setInputs((prev) => {
+        const next = [...prev];
+        const cur = next[index] || "";
+        if (cur.length > 0) {
+          next[index] = cur.slice(0, -1);
+          return next;
+        }
+        // Optional: move back to previous word if at start
+        if (index > 0) {
+          const prevWordTyped = next[index - 1] || "";
+          next[index - 1] = prevWordTyped; // no change; keep as-is
+          setIndex(index - 1);
+        }
+        return next;
+      });
+      return;
+    }
+
+    if (key === " " || key === "Enter") {
+      e.preventDefault();
+      // Move to next word, finalize current
+      if (index < words.length - 1) {
+        setIndex(index + 1);
+      } else {
+        // End of test
+        setEndedAt(Date.now());
+        setShowResults(true);
+      }
+      return;
+    }
+
+    // Accept single printable characters only
+    if (key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+      setInputs((prev) => {
+        const next = [...prev];
+        next[index] = (next[index] || "") + key;
+        return next;
+      });
+    }
+  }
+
+  function restart() {
+    // Generate a new random seed on the client only (post-hydration)
+    let nextSeed = Date.now() ^ (Math.random() * 0x7fffffff);
+    if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+      const b = new Uint32Array(1);
+      window.crypto.getRandomValues(b);
+      nextSeed = b[0];
+    }
+    const nextWords = generateWords(MODES[mode], nextSeed);
+    setSeed(nextSeed);
+    setWords(nextWords);
+    setInputs(Array(nextWords.length).fill(""));
+    setIndex(0);
+    setStartedAt(null);
+    setEndedAt(null);
+    setShowResults(false);
+    requestAnimationFrame(() => focusInput());
+  }
+
+  return (
+    <main className={styles.wrap} ref={containerRef} onClick={focusInput}>
+      <section className={styles.header}>
+        <h1 className={styles.title}>Typing Test</h1>
+        <div className={styles.modes}>
+          {Object.keys(MODES).map((m) => (
+            <button
+              key={m}
+              className={`${styles.modeBtn} ${mode === m ? styles.active : ""}`}
+              onClick={() => setMode(m)}
+              type="button"
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={styles.testArea}>
+        <div className={`${styles.words} ${showResults ? styles.fadeOut : styles.fadeIn}`}>
+          {words.map((w, wi) => {
+            const typed = inputs[wi] ?? "";
+            const chars = w.split("");
+            const isCurrent = wi === index;
+
+            return (
+              <div
+                key={`${w}-${wi}`}
+                className={`${styles.word} ${isCurrent ? styles.currentWord : ""}`}
+              >
+                {chars.map((ch, ci) => {
+                  const hasTyped = ci < typed.length;
+                  const t = hasTyped ? typed[ci] : "";
+                  let cls = styles.char;
+
+                  if (hasTyped) {
+                    if (t === ch) cls = `${styles.char} ${styles.correct}`;
+                    else cls = `${styles.char} ${styles.wrong}`;
+                  } else if (!hasTyped && (wi < index || showResults)) {
+                    cls = `${styles.char} ${styles.skipped}`;
+                  }
+
+                  // Add lessons-like current-char underline on the next char
+                  const isCursor = isCurrent && !showResults && ci === typed.length;
+
+                  return (
+                    <span key={ci} className={`${cls} ${isCursor ? styles.cursor : ""}`}>
+                      {ch}
+                    </span>
+                  );
+                })}
+                {/* Extra typed letters beyond target length */}
+                {typed.length > w.length &&
+                  typed
+                    .slice(w.length)
+                    .split("")
+                    .map((extra, i) => (
+                      <span key={`x${i}`} className={`${styles.char} ${styles.extra}`}>
+                        {extra}
+                      </span>
+                    ))}
+
+                {/* When at end of the word, show caret after the last char */}
+                {isCurrent && !showResults && typed.length >= w.length && (
+                  <span className={styles.caret} aria-hidden="true" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Hidden input to capture keystrokes */}
+        <input
+          ref={inputRef}
+          className={styles.hiddenInput}
+          onKeyDown={onKeyDown}
+          spellCheck={false}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+        />
+
+        <div className={styles.controls}>
+          {!showResults ? (
+            <button className={styles.action} onClick={restart} type="button">
+              Reset
+            </button>
+          ) : (
+            <button
+              className={`${styles.action} ${styles.primary}`}
+              onClick={restart}
+              type="button"
+            >
+              Try again
+            </button>
+          )}
+        </div>
+
+        {showResults && (
+          <div className={`${styles.results} ${styles.fadeIn}`}>
+            <div className={styles.resultRow}>
+              <span className={styles.label}>WPM</span>
+              <strong className={styles.value}>{stats.wpm}</strong>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.label}>Accuracy</span>
+              <strong className={styles.value}>{stats.acc}%</strong>
+            </div>
+            <div className={styles.resultRow}>
+              <span className={styles.label}>Test</span>
+              <strong className={styles.value}>{mode}</strong>
+            </div>
+          </div>
+        )}
+      </section>
+    </main>
+  );
+}

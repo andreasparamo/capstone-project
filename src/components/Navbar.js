@@ -76,13 +76,13 @@ export default function Navbar() {
     <>
       <header className="header">
         <div className="nav-container">
-          <Link href="/" className="logo">
+          <Link href="/landingPage" className="logo">
             LearnToType
           </Link>
           <nav>
             <ul className="nav-links">
               <li>
-                <Link href="/">Test</Link>
+                <Link href="/tests">Tests</Link>
               </li>
               <li>
                 <Link href="/lessons">Lessons</Link>
@@ -91,10 +91,10 @@ export default function Navbar() {
                 <Link href="/games">Games</Link>
               </li>
               <li>
-                <Link href="/progress">Progress</Link>
+                <Link href="/leaderboard">Leaderboard</Link>
               </li>
               <li>
-                <Link href="/leaderboard">Leaderboard</Link>
+                <Link href="/progress">Progress</Link>
               </li>
             </ul>
           </nav>
@@ -103,6 +103,27 @@ export default function Navbar() {
               className="dropdown-toggle"
               onClick={toggleDropdown}
               aria-label="User menu"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                padding: 0
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+              }}
             >
               <img
                 src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff"

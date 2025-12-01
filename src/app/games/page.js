@@ -389,7 +389,7 @@ export default function GamesPage() {
       reset();
       setRunning(true);
       setOverlayVisible(false);
-      setTimeout(() => typeboxRef.current?.focus(), 20);
+      setTimeout(() => typeboxRef.current && typeboxRef.current.focus(), 20);
     } else {
       togglePause();
     }
@@ -415,7 +415,7 @@ export default function GamesPage() {
     setOverlayVisible(false);
     reset();
     setRunning(true);
-    setTimeout(() => typeboxRef.current?.focus(), 20);
+    setTimeout(() => typeboxRef.current && typeboxRef.current.focus(), 20);
   };
 
   const handleKeyDown = (e) => {
@@ -491,7 +491,9 @@ export default function GamesPage() {
             </h1>
             <p className="muted">Pick a game to practice your skills.</p>
           </div>
+
           <div className="grid">
+            {/* WordFall card */}
             <article className="card">
               <div className="thumb">WORDFALL</div>
               <h3>WordFall</h3>
@@ -505,6 +507,19 @@ export default function GamesPage() {
                   className="btn primary"
                   onClick={() => setCurrentView("wordfall")}
                 >
+                  Play
+                </button>
+              </div>
+            </article>
+
+            {/* Keyboard Jump card */}
+            <article className="card">
+              <div className="thumb">KEYBOARD JUMP</div>
+              <h3>Keyboard Jump</h3>
+              <p>Jump across platforms by typing words correctly. 3 difficulty modes.</p>
+              <div className="row">
+                <span className="muted">Typing • Platformer</span>
+                <button className="btn primary" onClick={() => setCurrentView('keyboardjump')}>
                   Play
                 </button>
               </div>
@@ -571,7 +586,6 @@ export default function GamesPage() {
               Lives: <b>{lives}</b>
             </span>
           </div>
-        </div>
 
         <section id="stage">
           <div id="game" ref={gameRef}>
@@ -625,8 +639,23 @@ export default function GamesPage() {
                     </>
                   )}
                 </div>
+                <input
+                  ref={typeboxRef}
+                  id="typebox"
+                  type="text"
+                  placeholder="Start typing…"
+                  autoComplete="off"
+                  spellCheck="false"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  style={{
+                    borderColor: inputError ? 'rgba(239,68,68,.8)' : '',
+                    color: '#000'
+                  }}
+                />
               </div>
-            )}
+            </section>
           </div>
           <div className="footer">
             <div className="muted">
@@ -647,8 +676,18 @@ export default function GamesPage() {
               }}
             />
           </div>
-        </section>
-      </section>
-    </main>
+          <div className="kj-info">
+            <div>
+              <strong>Controls:</strong> just start typing letters
+            </div>
+            <div>Finish the word to jump to the next platform.</div>
+          </div>
+        </div>
+
+        <div className="kj-footer">
+          Practice typing game.
+        </div>
+      </div>
+    </section>
   );
 }
