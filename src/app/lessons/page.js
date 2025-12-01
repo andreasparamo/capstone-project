@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import "./lessons.css";
 
-// Injected from existing file to preserve exact lesson content
 const LESSONS = [
   { 
     id: 'beg-1-home-row-left', 
@@ -38,10 +37,116 @@ const LESSONS = [
     level: 'Beginner',
     description: 'Combine left/right hands with rhythm.',
     text: 'asdf jkl; asdf jkl;  a s d f j k l ;  as df jk l;  asdfjkl; asdfjkl;  a s d f  j k l ;  asdf jkl;'
+  },
+
+  { 
+    id: 'beg-6-alternating-basic',
+    title: 'Alternating Hands — Basic',
+    level: 'Beginner',
+    description: 'Gentle left–right alternation on home row.',
+    text: 'a j a j  s k s k  d l d l  f ; f ;  as jk dl f;  a s d f  j k l ;  asdf jkl;  a j s k d l f ;'
+  },
+  { 
+    id: 'beg-7-spacing-control',
+    title: 'Spacing Control I',
+    level: 'Beginner',
+    description: 'Focus on clean spaces and steady tempo.',
+    text: 'as df  as df  jk l;  jk l;  asdf  jkl;  a  s  d  f   j  k  l  ;  asdf  jkl;  as df  jk l;'
+  },
+  { 
+    id: 'beg-8-repeats-and-pairs',
+    title: 'Repeats and Pairs',
+    level: 'Beginner',
+    description: 'Repeat small pairs to build accuracy.',
+    text: 'aa ss dd ff jj kk ll ;;  as as sd df jk kl l; ;a  as sd df  jk kl l;  asdf jkl;  as as as  jk jk jk'
+  },
+  { 
+    id: 'beg-9-short-phrases',
+    title: 'Short Phrases I',
+    level: 'Beginner',
+    description: 'Tiny phrases with calm rhythm.',
+    text: 'as if; as is; a lad; a fall;  asdf asdf  jkl; jkl;  as as df df  jk jk l; l;  as if as if  a lad a lad'
+  },
+  { 
+    id: 'beg-10-home-row-review',
+    title: 'Home Row Review',
+    level: 'Beginner',
+    description: 'Full review of home-row keys with spaces.',
+    text: 'asdf jkl;  asdf jkl;  a s d f j k l ;  asdfjkl;  as df jk l;  a j s k d l f ;  asdf jkl; asdf jkl;'
+  },
+
+  { 
+    id: 'int-1-alternating-hands-ii',
+    title: 'Alternating Hands II',
+    level: 'Intermediate',
+    description: 'Quicker alternation and tighter spacing.',
+    text: 'a j s k d l f ;  as jk dl f;  asdf jkl;  ajsk dlf;  as df jk l;  a j s k  d l f ;  asdfjkl;'
+  },
+  { 
+    id: 'int-2-rhythm-and-flow',
+    title: 'Rhythm and Flow I',
+    level: 'Intermediate',
+    description: 'Maintain flow across mixed patterns.',
+    text: 'asdf jkl; as df jk l;  ajsk dlf;  asdfjkl;  a s d f  j k l ;  as df  jk l;  asdf jkl;'
+  },
+  { 
+    id: 'int-3-speed-bursts-i',
+    title: 'Speed Bursts I',
+    level: 'Intermediate',
+    description: 'Short speed bursts with recovery gaps.',
+    text: 'asdfjkl; asdfjkl;  a s d f  j k l ;  asdfjkl;  as df jk l;  ajsk dlf;  asdfjkl;  a j s k d l f ;'
+  },
+  { 
+    id: 'int-4-accuracy-focus-i',
+    title: 'Accuracy Focus I',
+    level: 'Intermediate',
+    description: 'Slow precise typing then brief bursts.',
+    text: 'a s d f   j k l ;   as df  jk l;   asdf jkl;  asdfjkl;  a j s k d l f ;  asdf jkl;'
+  },
+  { 
+    id: 'int-5-phrase-chaining',
+    title: 'Phrase Chaining I',
+    level: 'Intermediate',
+    description: 'Chain short phrases without stopping.',
+    text: 'as if as is  a lad a fall  asdf jkl;  as df jk l;  as if as if  jkl; asdf  ajsk dlf;'
+  },
+  { 
+    id: 'int-6-hand-switch-drill',
+    title: 'Hand Switch Drill',
+    level: 'Intermediate',
+    description: 'Frequent hand switches on home row.',
+    text: 'a j s k d l f ;  as jk dl f;  a j a j  s k s k  d l d l  f ; f ;  asdf jkl;'
+  },
+  { 
+    id: 'int-7-consistency-run',
+    title: 'Consistency Run I',
+    level: 'Intermediate',
+    description: 'Even pace with minimal errors.',
+    text: 'as df jk l;  asdf jkl;  asdfjkl;  a s d f  j k l ;  as df jk l;  asdf jkl;  a j s k d l f ;'
+  },
+  { 
+    id: 'int-8-mixed-spacing',
+    title: 'Mixed Spacing I',
+    level: 'Intermediate',
+    description: 'Vary spaces while holding form.',
+    text: 'asdf  jkl;   as df  jk l;  a  j  s  k  d  l  f  ;  asdfjkl;  asdf  jkl;'
+  },
+  { 
+    id: 'int-9-endurance-mini',
+    title: 'Endurance Mini I',
+    level: 'Intermediate',
+    description: 'Longer line with steady accuracy.',
+    text: 'asdf jkl; asdf jkl; a s d f j k l ; as df jk l; a j s k d l f ; asdfjkl; as df jk l; asdf jkl;'
+  },
+  { 
+    id: 'int-10-home-row-sentences',
+    title: 'Home Row Sentences I',
+    level: 'Intermediate',
+    description: 'Sentence-like flows using home-row keys.',
+    text: 'as if a lad falls; as if all ask; asdf jkl; a j s k d l f ; as df jk l; asdf jkl;'
   }
 ]
 
-// Match the new HTML pagination size
 const PAGE_CHARS = 180;
 
 const fingerMap = {
@@ -63,6 +168,7 @@ export default function LessonsPage() {
   const [activeKeys, setActiveKeys] = useState(new Set());
   const [activeFingers, setActiveFingers] = useState(new Set());
   const [keyFlash, setKeyFlash] = useState({ key: null, type: null });
+  const [levelFilter, setLevelFilter] = useState("All");
   const hiddenInputRef = useRef(null);
 
   const makePages = (text) => {
@@ -217,7 +323,7 @@ export default function LessonsPage() {
         handleKey(" ");
       } else if (e.key === "Escape") {
         e.preventDefault();
-        if (reviewVisible) returnToLessons();
+        if (reviewVisible) setReviewVisible(false);
         else closePlayer();
       } else if (e.key === "Enter" && currentLesson.finished) {
         e.preventDefault();
@@ -235,6 +341,7 @@ export default function LessonsPage() {
   }, [currentLesson?.idx]);
 
   const stats = currentLesson ? calculateStats(currentLesson) : { wpm: 0, acc: 100, prog: 0 };
+  const filtered = LESSONS.filter(l => levelFilter === "All" ? true : l.level === levelFilter);
 
   return (
     <main>
@@ -245,8 +352,29 @@ export default function LessonsPage() {
         </p>
       </section>
 
+      <section className="filterbar">
+        <button
+          className={["filter-btn", levelFilter==="All" ? "active" : ""].join(" ")}
+          onClick={() => setLevelFilter("All")}
+        >
+          All
+        </button>
+        <button
+          className={["filter-btn", levelFilter==="Beginner" ? "active" : ""].join(" ")}
+          onClick={() => setLevelFilter("Beginner")}
+        >
+          Beginner
+        </button>
+        <button
+          className={["filter-btn", levelFilter==="Intermediate" ? "active" : ""].join(" ")}
+          onClick={() => setLevelFilter("Intermediate")}
+        >
+          Intermediate
+        </button>
+      </section>
+
       <section className="grid">
-        {LESSONS.map((lesson) => (
+        {filtered.map((lesson) => (
           <article key={lesson.id} className="card">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: ".5rem" }}>
               <h3>{lesson.title}</h3>
@@ -335,7 +463,7 @@ export default function LessonsPage() {
             <input ref={hiddenInputRef} className="hidden-input" aria-hidden="true" readOnly />
 
             <footer className="player-footer">
-              <button className="btn" onClick={() => (reviewVisible ? returnToLessons() : closePlayer())}>
+              <button className="btn" onClick={() => (reviewVisible ? setReviewVisible(false) : closePlayer())}>
                 Exit
               </button>
               <div style={{ display: "flex", gap: ".5rem" }}>
@@ -354,7 +482,7 @@ export default function LessonsPage() {
           <div className="review">
             <header>
               <h3 id="reviewTitle">{currentLesson.reviewData.title} Review</h3>
-              <button className="icon-close" aria-label="Close" onClick={returnToLessons}>×</button>
+              <button className="icon-close" aria-label="Close" onClick={() => setReviewVisible(false)}>×</button>
             </header>
 
             <div className="stats" id="reviewStats">
