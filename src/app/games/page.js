@@ -1,18 +1,175 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback } from 'react';
-import './games.css';
+import { useState, useEffect, useRef, useCallback } from "react";
+import "./games.css";
+import { useGameScore } from "@/src/hooks/useGameScore";
 
 const WORDS = {
-  beginner: ['cat','dog','sun','tree','book','code','star','bird','fish','wind','game','home','rock','ball','milk','blue','green','happy','quick','light','train','apple','bread','mouse','table','phone','water','smile','jump','rain','cloud','river','chair','plant','paper','piano','lemon','grape','quiet','sound','truck','road','house','clock','stone','sugar','butter','cable','castle','garden','blank','simple','bright','clean','cool','fresh','sweet','tiny','brave'],
-  intermediate: ['jungle','rocket','puzzle','python','silver','laptop','winter','coffee','planet','thunder','network','battery','keyboard','monitor','quantum','dynamic','channel','gateway','compile','process','package','feature','digital','gravity','texture','control','cluster','balance','library','storage','service','latency','iterate','compute','backend','frontend','mutable','immutable','parallel','virtual','pointer','decimal','validate','optimize','fallback','tracking','partial','connect','resolve','context','adapter','decoder','encoder','handler','cursor','overlay','provider','schema'],
-  expert: ['synchronous','metamorphosis','cryptography','microarchitecture','idempotency','observability','characteristic','multiplication','thermodynamics','inconsequential','polymorphism','interoperability','disambiguation','heterogeneous','electromagnetic','parallelizable','synchronization','serialization','mischaracterize','counterintuitive','decomposition','infrastructure','deserialization','posttranslational','electrophysiology','photoautotrophic','metacognition','hyperparameter','spectrophotometer','bioluminescence','neuroplasticity','phenomenological','telecommunication','photosensitivity','computationally','indistinguishable']
+  beginner: [
+    "cat",
+    "dog",
+    "sun",
+    "tree",
+    "book",
+    "code",
+    "star",
+    "bird",
+    "fish",
+    "wind",
+    "game",
+    "home",
+    "rock",
+    "ball",
+    "milk",
+    "blue",
+    "green",
+    "happy",
+    "quick",
+    "light",
+    "train",
+    "apple",
+    "bread",
+    "mouse",
+    "table",
+    "phone",
+    "water",
+    "smile",
+    "jump",
+    "rain",
+    "cloud",
+    "river",
+    "chair",
+    "plant",
+    "paper",
+    "piano",
+    "lemon",
+    "grape",
+    "quiet",
+    "sound",
+    "truck",
+    "road",
+    "house",
+    "clock",
+    "stone",
+    "sugar",
+    "butter",
+    "cable",
+    "castle",
+    "garden",
+    "blank",
+    "simple",
+    "bright",
+    "clean",
+    "cool",
+    "fresh",
+    "sweet",
+    "tiny",
+    "brave",
+  ],
+  intermediate: [
+    "jungle",
+    "rocket",
+    "puzzle",
+    "python",
+    "silver",
+    "laptop",
+    "winter",
+    "coffee",
+    "planet",
+    "thunder",
+    "network",
+    "battery",
+    "keyboard",
+    "monitor",
+    "quantum",
+    "dynamic",
+    "channel",
+    "gateway",
+    "compile",
+    "process",
+    "package",
+    "feature",
+    "digital",
+    "gravity",
+    "texture",
+    "control",
+    "cluster",
+    "balance",
+    "library",
+    "storage",
+    "service",
+    "latency",
+    "iterate",
+    "compute",
+    "backend",
+    "frontend",
+    "mutable",
+    "immutable",
+    "parallel",
+    "virtual",
+    "pointer",
+    "decimal",
+    "validate",
+    "optimize",
+    "fallback",
+    "tracking",
+    "partial",
+    "connect",
+    "resolve",
+    "context",
+    "adapter",
+    "decoder",
+    "encoder",
+    "handler",
+    "cursor",
+    "overlay",
+    "provider",
+    "schema",
+  ],
+  expert: [
+    "synchronous",
+    "metamorphosis",
+    "cryptography",
+    "microarchitecture",
+    "idempotency",
+    "observability",
+    "characteristic",
+    "multiplication",
+    "thermodynamics",
+    "inconsequential",
+    "polymorphism",
+    "interoperability",
+    "disambiguation",
+    "heterogeneous",
+    "electromagnetic",
+    "parallelizable",
+    "synchronization",
+    "serialization",
+    "mischaracterize",
+    "counterintuitive",
+    "decomposition",
+    "infrastructure",
+    "deserialization",
+    "posttranslational",
+    "electrophysiology",
+    "photoautotrophic",
+    "metacognition",
+    "hyperparameter",
+    "spectrophotometer",
+    "bioluminescence",
+    "neuroplasticity",
+    "phenomenological",
+    "telecommunication",
+    "photosensitivity",
+    "computationally",
+    "indistinguishable",
+  ],
 };
 
 const PRESETS = {
   beginner: { baseFall: 60, spawn: 1600, laneWidth: 160 },
   intermediate: { baseFall: 85, spawn: 1300, laneWidth: 175 },
-  expert: { baseFall: 110, spawn: 1100, laneWidth: 195 }
+  expert: { baseFall: 110, spawn: 1100, laneWidth: 195 },
 };
 
 const bags = { beginner: [], intermediate: [], expert: [] };
@@ -32,8 +189,8 @@ function nextWord(key) {
 }
 
 export default function GamesPage() {
-  const [currentView, setCurrentView] = useState('games'); // 'games' or 'wordfall'
-  const [difficulty, setDifficulty] = useState('beginner');
+  const [currentView, setCurrentView] = useState("games"); // 'games' or 'wordfall'
+  const [difficulty, setDifficulty] = useState("beginner");
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
@@ -42,8 +199,15 @@ export default function GamesPage() {
   const [words, setWords] = useState([]);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayContent, setOverlayContent] = useState(null);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [inputError, setInputError] = useState(false);
+
+  // Use the reusable game score hook
+  const {
+    highScore,
+    saveScore,
+    loading: scoreLoading,
+  } = useGameScore("wordfall");
 
   const gameRef = useRef(null);
   const typeboxRef = useRef(null);
@@ -70,114 +234,140 @@ export default function GamesPage() {
   const spawnWord = useCallback(() => {
     if (words.length >= 3) return;
     if (!lanesRef.current.length) computeLanes();
-    
-    const used = new Set(words.map(w => w.lane));
-    const free = lanesRef.current.map((_, i) => i).filter(i => !used.has(i));
+
+    const used = new Set(words.map((w) => w.lane));
+    const free = lanesRef.current.map((_, i) => i).filter((i) => !used.has(i));
     if (!free.length) return;
-    
+
     const lane = free[Math.floor(Math.random() * free.length)];
     const text = nextWord(difficulty);
-    
-    setWords(prev => {
+
+    setWords((prev) => {
       const newWord = {
         id: Date.now() + Math.random(),
         text,
         lane,
         y: -50,
         speed: 0,
-        x: 0
+        x: 0,
       };
       return [...prev, newWord];
     });
   }, [words, difficulty, computeLanes]);
 
   const removeWord = useCallback((wordId, celebrate = false) => {
-    setWords(prev => prev.filter(w => w.id !== wordId));
+    setWords((prev) => prev.filter((w) => w.id !== wordId));
   }, []);
 
-  const gameOver = useCallback(() => {
+  const gameOver = useCallback(async () => {
     setRunning(false);
     setPaused(false);
+
+    // Save the high score with additional game data
+    const result = await saveScore(score, {
+      level,
+      difficulty,
+    });
+
+    let message = `Score ${score} · Level ${level}`;
+    if (result.isNewHighScore) {
+      message = `New High Score! ${score}\nPrevious: ${
+        result.previousHighScore || 0
+      } · Level ${level}`;
+    }
+
     setOverlayContent({
-      title: 'Game Over',
-      message: `Score ${score} · Level ${level}`,
-      actions: [{
-        label: 'Play Again',
-        primary: true,
-        onClick: () => restart()
-      }]
+      title: result.isNewHighScore ? "New High Score!" : "Game Over",
+      message,
+      actions: [
+        {
+          label: "Play Again",
+          primary: true,
+          onClick: () => restart(),
+        },
+      ],
     });
     setOverlayVisible(true);
-  }, [score, level]);
+  }, [score, level, difficulty, saveScore]);
 
-  const update = useCallback((dt) => {
-  if (!gameRef.current) return;
-  
-  const toRemove = new Set();
-  let lifeLost = false;
-  
-  setWords(prev => {
-    const updated = prev.map(w => {
-      // Skip if already marked for removal
-      if (toRemove.has(w.id)) return null;
-      
-      const base = PRESETS[difficulty].baseFall;
-      const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
-      const timeFactor = 1 + Math.min(1.0, elapsed * 0.004);
-      const levelFactor = 1 + (level - 1) * 0.06;
-      const speed = (base + Math.random() * base * 0.25) * levelFactor * timeFactor;
-      
-      const newY = w.y + speed * dt;
-      
-      if (newY >= gameRef.current.clientHeight - 60) {
-        toRemove.add(w.id);
-        if (!lifeLost) {
-          lifeLost = true;
-          setLives(l => {
-            const newLives = Math.max(0, l - 1);
-            if (newLives <= 0) {
-              setTimeout(() => gameOver(), 100);
+  const update = useCallback(
+    (dt) => {
+      if (!gameRef.current) return;
+
+      const toRemove = new Set();
+      let lifeLost = false;
+
+      setWords((prev) => {
+        const updated = prev
+          .map((w) => {
+            // Skip if already marked for removal
+            if (toRemove.has(w.id)) return null;
+
+            const base = PRESETS[difficulty].baseFall;
+            const elapsed = startTimeRef.current
+              ? (performance.now() - startTimeRef.current) / 1000
+              : 0;
+            const timeFactor = 1 + Math.min(1.0, elapsed * 0.004);
+            const levelFactor = 1 + (level - 1) * 0.06;
+            const speed =
+              (base + Math.random() * base * 0.25) * levelFactor * timeFactor;
+
+            const newY = w.y + speed * dt;
+
+            if (newY >= gameRef.current.clientHeight - 60) {
+              toRemove.add(w.id);
+              if (!lifeLost) {
+                lifeLost = true;
+                setLives((l) => {
+                  const newLives = Math.max(0, l - 1);
+                  if (newLives <= 0) {
+                    setTimeout(() => gameOver(), 100);
+                  }
+                  return newLives;
+                });
+              }
+              return null;
             }
-            return newLives;
-          });
-        }
-        return null;
+
+            return { ...w, y: newY, speed };
+          })
+          .filter(Boolean);
+
+        return updated;
+      });
+
+      lastSpawnRef.current += dt * 1000;
+      const baseSpawn = PRESETS[difficulty].spawn;
+      const cap = Math.max(900, baseSpawn - (level - 1) * 30);
+
+      if (lastSpawnRef.current >= cap && words.length < 3) {
+        lastSpawnRef.current = 0;
+        spawnWord();
       }
-      
-      return { ...w, y: newY, speed };
-    }).filter(Boolean);
-    
-    return updated;
-  });
+    },
+    [difficulty, level, gameOver, spawnWord, words.length]
+  );
 
-  lastSpawnRef.current += dt * 1000;
-  const baseSpawn = PRESETS[difficulty].spawn;
-  const cap = Math.max(900, baseSpawn - (level - 1) * 30);
-  
-  if (lastSpawnRef.current >= cap && words.length < 3) {
-    lastSpawnRef.current = 0;
-    spawnWord();
-  }
-}, [difficulty, level, gameOver, spawnWord, words.length]);
+  const animate = useCallback(
+    (time) => {
+      if (!running || paused) {
+        lastTimeRef.current = time;
+        requestRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = time;
+      }
 
-  const animate = useCallback((time) => {
-    if (!running || paused) {
+      const dt = Math.min(0.05, (time - lastTimeRef.current) / 1000);
       lastTimeRef.current = time;
+
+      update(dt);
       requestRef.current = requestAnimationFrame(animate);
-      return;
-    }
-
-    if (lastTimeRef.current === null) {
-      lastTimeRef.current = time;
-    }
-
-    const dt = Math.min(0.05, (time - lastTimeRef.current) / 1000);
-    lastTimeRef.current = time;
-
-    update(dt);
-    requestRef.current = requestAnimationFrame(animate);
-  }, [running, paused, update]);
+    },
+    [running, paused, update]
+  );
 
   const reset = useCallback(() => {
     setWords([]);
@@ -189,7 +379,7 @@ export default function GamesPage() {
     lastTimeRef.current = null;
     setPaused(false);
     computeLanes();
-    
+
     setTimeout(() => spawnWord(), 100);
     setTimeout(() => spawnWord(), 400);
   }, [computeLanes, spawnWord]);
@@ -206,12 +396,12 @@ export default function GamesPage() {
   };
 
   const togglePause = () => {
-    setPaused(prev => {
+    setPaused((prev) => {
       const newPaused = !prev;
       if (newPaused) {
         setOverlayContent({
-          title: 'Paused',
-          message: 'Press Resume to continue.'
+          title: "Paused",
+          message: "Press Resume to continue.",
         });
         setOverlayVisible(true);
       } else {
@@ -229,14 +419,14 @@ export default function GamesPage() {
   };
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       const value = inputValue.trim();
       if (!value) return;
 
       let matchIdx = -1;
       let maxY = -Infinity;
-      
+
       words.forEach((w, idx) => {
         if (w.text.toLowerCase() === value.toLowerCase() && w.y > maxY) {
           matchIdx = idx;
@@ -246,8 +436,8 @@ export default function GamesPage() {
 
       if (matchIdx > -1) {
         removeWord(words[matchIdx].id, true);
-        setScore(s => s + 10);
-        setInputValue('');
+        setScore((s) => s + 10);
+        setInputValue("");
       } else {
         setInputError(true);
         setTimeout(() => setInputError(false), 180);
@@ -263,42 +453,58 @@ export default function GamesPage() {
   useEffect(() => {
     computeLanes();
     const handleResize = () => computeLanes();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [computeLanes]);
 
   useEffect(() => {
     if (gameRef.current && words.length > 0) {
-      words.forEach(word => {
+      words.forEach((word) => {
         if (!word.x && lanesRef.current[word.lane]) {
           const xCenter = lanesRef.current[word.lane];
-          setWords(prev => prev.map(w => {
-            if (w.id === word.id && !w.x) {
-              return { ...w, x: xCenter - 50 };
-            }
-            return w;
-          }));
+          setWords((prev) =>
+            prev.map((w) => {
+              if (w.id === word.id && !w.x) {
+                return { ...w, x: xCenter - 50 };
+              }
+              return w;
+            })
+          );
         }
       });
     }
   }, [words]);
 
-  if (currentView === 'games') {
+  if (currentView === "games") {
     return (
       <main>
         <section id="gamesPage">
           <div className="games-hero">
-            <h1 style={{ fontSize: '2rem', fontWeight: 700, letterSpacing: '.3px' }}>Games</h1>
+            <h1
+              style={{
+                fontSize: "2rem",
+                fontWeight: 700,
+                letterSpacing: ".3px",
+              }}
+            >
+              Games
+            </h1>
             <p className="muted">Pick a game to practice your skills.</p>
           </div>
           <div className="grid">
             <article className="card">
               <div className="thumb">WORDFALL</div>
               <h3>WordFall</h3>
-              <p>Type words before they hit the bottom. Difficulty-aware, clean UI.</p>
+              <p>
+                Type words before they hit the bottom. Difficulty-aware, clean
+                UI.
+              </p>
               <div className="row">
                 <span className="muted">Typing • Reflex</span>
-                <button className="btn primary" onClick={() => setCurrentView('wordfall')}>
+                <button
+                  className="btn primary"
+                  onClick={() => setCurrentView("wordfall")}
+                >
                   Play
                 </button>
               </div>
@@ -312,26 +518,35 @@ export default function GamesPage() {
   return (
     <main>
       <section id="wordfallPage">
-        <div className="nav-container" style={{ 
-          padding: 0, 
-          margin: 0, 
-          maxWidth: '100%', 
-          display: 'flex', 
-          gap: '.6rem', 
-          alignItems: 'center', 
-          justifyContent: 'space-between' 
-        }}>
-          <div style={{ display: 'flex', gap: '.6rem', alignItems: 'center' }}>
-            <button className="btn" onClick={() => setCurrentView('games')}>← Back</button>
-            <h2 style={{ marginLeft: '.4rem' }}>WordFall</h2>
+        <div
+          className="nav-container"
+          style={{
+            padding: 0,
+            margin: 0,
+            maxWidth: "100%",
+            display: "flex",
+            gap: ".6rem",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", gap: ".6rem", alignItems: "center" }}>
+            <button className="btn" onClick={() => setCurrentView("games")}>
+              ← Back
+            </button>
+            <h2 style={{ marginLeft: ".4rem" }}>WordFall</h2>
           </div>
-          <div style={{ display: 'flex', gap: '.6rem', alignItems: 'center' }}>
-            <label htmlFor="difficulty" className="sr-only" style={{ position: 'absolute', left: '-9999px' }}>
+          <div style={{ display: "flex", gap: ".6rem", alignItems: "center" }}>
+            <label
+              htmlFor="difficulty"
+              className="sr-only"
+              style={{ position: "absolute", left: "-9999px" }}
+            >
               Difficulty
             </label>
-            <select 
-              id="difficulty" 
-              aria-label="Difficulty" 
+            <select
+              id="difficulty"
+              aria-label="Difficulty"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
             >
@@ -340,30 +555,39 @@ export default function GamesPage() {
               <option value="expert">Expert</option>
             </select>
             <button onClick={startGame} className="primary">
-              {!running ? 'Start' : paused ? 'Resume' : 'Pause'}
+              {!running ? "Start" : paused ? "Resume" : "Pause"}
             </button>
             <button onClick={restart}>Restart</button>
-            <span className="pill">Score: <b>{score}</b></span>
-            <span className="pill">Level: <b>{level}</b></span>
-            <span className="pill">Lives: <b>{lives}</b></span>
+            <span className="pill">
+              Score: <b>{score}</b>
+            </span>
+            <span className="pill">
+              High Score: <b>{scoreLoading ? "..." : highScore}</b>
+            </span>
+            <span className="pill">
+              Level: <b>{level}</b>
+            </span>
+            <span className="pill">
+              Lives: <b>{lives}</b>
+            </span>
           </div>
         </div>
 
         <section id="stage">
           <div id="game" ref={gameRef}>
-            {words.map(word => (
+            {words.map((word) => (
               <div
                 key={word.id}
                 className="word"
                 style={{
                   transform: `translate(${word.x}px, ${word.y}px)`,
-                  position: 'absolute'
+                  position: "absolute",
                 }}
               >
                 {word.text}
               </div>
             ))}
-            
+
             {overlayVisible && (
               <div id="overlay">
                 <div id="overlayContent">
@@ -371,26 +595,33 @@ export default function GamesPage() {
                     <>
                       <h2>{overlayContent.title}</h2>
                       {overlayContent.message && (
-                        <p style={{ color: '#a1a1aa' }}>{overlayContent.message}</p>
+                        <p style={{ color: "#a1a1aa" }}>
+                          {overlayContent.message}
+                        </p>
                       )}
-                      {overlayContent.actions && overlayContent.actions.length > 0 && (
-                        <div style={{ 
-                          marginTop: '10px', 
-                          display: 'flex', 
-                          gap: '8px', 
-                          justifyContent: 'center' 
-                        }}>
-                          {overlayContent.actions.map((action, idx) => (
-                            <button
-                              key={idx}
-                              className={`btn ${action.primary ? 'primary' : ''}`}
-                              onClick={action.onClick}
-                            >
-                              {action.label}
-                            </button>
-                          ))}
-                        </div>
-                      )}
+                      {overlayContent.actions &&
+                        overlayContent.actions.length > 0 && (
+                          <div
+                            style={{
+                              marginTop: "10px",
+                              display: "flex",
+                              gap: "8px",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {overlayContent.actions.map((action, idx) => (
+                              <button
+                                key={idx}
+                                className={`btn ${
+                                  action.primary ? "primary" : ""
+                                }`}
+                                onClick={action.onClick}
+                              >
+                                {action.label}
+                              </button>
+                            ))}
+                          </div>
+                        )}
                     </>
                   )}
                 </div>
@@ -398,7 +629,9 @@ export default function GamesPage() {
             )}
           </div>
           <div className="footer">
-            <div className="muted">Type the full word then press Space or Enter.</div>
+            <div className="muted">
+              Type the full word then press Space or Enter.
+            </div>
             <input
               ref={typeboxRef}
               id="typebox"
@@ -410,7 +643,7 @@ export default function GamesPage() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
               style={{
-                borderColor: inputError ? 'rgba(239,68,68,.8)' : ''
+                borderColor: inputError ? "rgba(239,68,68,.8)" : "",
               }}
             />
           </div>

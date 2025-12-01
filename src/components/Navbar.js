@@ -104,19 +104,31 @@ export default function Navbar() {
               onClick={toggleDropdown}
               aria-label="User menu"
             >
-              <img src="https://via.placeholder.com/40" alt="Profile Picture" />
+              <img
+                src="https://ui-avatars.com/api/?name=John+Doe&background=0D8ABC&color=fff"
+                alt="Profile Picture"
+              />
             </button>
             <div className="dropdown-menu" id="myDropdown">
-              <a href="#" onClick={openProfileModal}>Profile</a>
-              <a href="#" onClick={openSettingsModal}>Settings</a>
-              <a href="#" onClick={handleLogout}>Logout</a>
+              <a href="#" onClick={openProfileModal}>
+                Profile
+              </a>
+              <a href="#" onClick={openSettingsModal}>
+                Settings
+              </a>
+              <a href="#" onClick={handleLogout}>
+                Logout
+              </a>
             </div>
           </div>
         </div>
       </header>
 
       <ProfileModal isOpen={isProfileModalOpen} onClose={closeProfileModal} />
-      <SettingsModal isOpen={isSettingsModalOpen} onClose={closeSettingsModal} />
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={closeSettingsModal}
+      />
     </>
   );
 }
