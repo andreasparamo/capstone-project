@@ -86,7 +86,7 @@ export default function LeaderboardPage() {
         <div className="leaderboard-hero">
           <h1>Leaderboard</h1>
           <p className="muted">
-            Compete with other players and see who's on top!
+            Compete with other players and see who&apos;s on top!
           </p>
         </div>
 
