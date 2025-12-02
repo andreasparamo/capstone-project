@@ -29,6 +29,11 @@ main {
   font-weight: 700;
   letter-spacing: 0.3px;
   margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .leaderboard-controls {

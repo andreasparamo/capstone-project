@@ -7,10 +7,13 @@ export default function SettingsModal({ isOpen, onClose }) {
   const { user } = useAuth();
   const [settings, setSettings] = useState({
     theme: "dark",
-    sound: true
+    sound: true,
+    soundEffect: "default"
   });
   const [loading, setLoading] = useState(false);
   const previousThemeRef = useRef(null);
+  const audioCtxRef = useRef(null);
+  const previewTimeoutsRef = useRef([]);
 
   // Helper: detect current theme class on body (first matching theme-*)
   const getCurrentThemeClass = () => {
@@ -82,6 +85,93 @@ export default function SettingsModal({ isOpen, onClose }) {
     if (name === 'theme') {
       applyThemeClass(newVal);
     }
+    
+    // Play preview for soundEffect selection immediately (user gesture)
+    if (name === 'soundEffect') {
+      // only preview if sound is enabled
+      if ((type === 'checkbox' && checked) || settings.sound) {
+        try {
+          playPreview(newVal);
+        } catch (err) {
+          // ignore preview failures
+          console.warn('Preview failed', err);
+        }
+      }
+    }
+  };
+
+  // Cleanup any scheduled preview timeouts when unmounting
+  useEffect(() => {
+    return () => {
+      previewTimeoutsRef.current.forEach((id) => clearTimeout(id));
+      previewTimeoutsRef.current = [];
+      if (audioCtxRef.current) {
+        try { audioCtxRef.current.close(); } catch (e) {}
+        audioCtxRef.current = null;
+      }
+    };
+  }, []);
+
+  // WebAudio synth preview helper
+  const ensureAudioContext = () => {
+    if (!audioCtxRef.current) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return null;
+      audioCtxRef.current = new AudioCtx();
+    }
+    return audioCtxRef.current;
+  };
+
+  const playTone = (freq = 440, time = 0.08, type = 'sine', when = 0) => {
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, ctx.currentTime + when);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime + when);
+    gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + when + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + when + time);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(ctx.currentTime + when);
+    osc.stop(ctx.currentTime + when + time + 0.02);
+  };
+
+  const playPreview = (effect) => {
+    // don't play when sound disabled
+    if (!settings.sound) return;
+    const ctx = ensureAudioContext();
+    if (!ctx) return;
+
+    // Small mapping of preview sounds
+    // cancel any scheduled timeouts
+    previewTimeoutsRef.current.forEach((id) => clearTimeout(id));
+    previewTimeoutsRef.current = [];
+
+    switch (effect) {
+      case 'typewriter':
+        // 3 quick clicks
+        playTone(800, 0.06, 'square', 0);
+        previewTimeoutsRef.current.push(setTimeout(() => playTone(780, 0.06, 'square', 0), 90));
+        previewTimeoutsRef.current.push(setTimeout(() => playTone(760, 0.06, 'square', 0), 180));
+        break;
+      case 'blip':
+        playTone(1200, 0.12, 'sine', 0);
+        break;
+      case 'pop':
+        // short sweep: two quick tones
+        playTone(600, 0.06, 'sawtooth', 0);
+        previewTimeoutsRef.current.push(setTimeout(() => playTone(420, 0.08, 'sine', 0), 80));
+        break;
+      case 'none':
+        // silent
+        break;
+      default:
+        // default click
+        playTone(880, 0.08, 'sine', 0);
+        break;
+    }
   };
 
   const revertThemeAndClose = () => {
@@ -93,6 +183,12 @@ export default function SettingsModal({ isOpen, onClose }) {
       });
       document.body.classList.add(previousThemeRef.current);
     }
+    // Try to return focus to the typing test (main) so keyboard works immediately
+    try {
+      const main = document.querySelector('main');
+      if (main && typeof main.click === 'function') main.click();
+      else if (typeof document.body.focus === 'function') document.body.focus();
+    } catch (e) {}
     onClose();
   };
 
@@ -108,6 +204,11 @@ export default function SettingsModal({ isOpen, onClose }) {
         // success: keep previewed theme applied
         try { localStorage.setItem('ltt_settings', JSON.stringify(settings)); } catch (e) {}
         setLoading(false);
+        try {
+          const main = document.querySelector('main');
+          if (main && typeof main.click === 'function') main.click();
+          else if (typeof document.body.focus === 'function') document.body.focus();
+        } catch (e) {}
         onClose();
       } else {
         // fallback to localStorage for unauthenticated users
@@ -119,6 +220,11 @@ export default function SettingsModal({ isOpen, onClose }) {
         setLoading(false);
         // indicate to user they can save to account by signing in
         alert('Settings saved locally. Sign in to persist to your account.');
+        try {
+          const main = document.querySelector('main');
+          if (main && typeof main.click === 'function') main.click();
+          else if (typeof document.body.focus === 'function') document.body.focus();
+        } catch (e) {}
         onClose();
       }
     } catch (error) {
@@ -158,6 +264,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                 <option value="forest">Forest Green</option>
                 <option value="sunset">Sunset</option>
                 <option value="midnight">Midnight</option>
+                <option value="sunrise">Sunrise</option>
               </select>
               <p className="setting-description">
                 Choose your preferred theme. Preview applies instantly; click Save to persist.
@@ -182,6 +289,27 @@ export default function SettingsModal({ isOpen, onClose }) {
               </label>
               <p className="setting-description">
                 Play sound effects during typing tests and games
+              </p>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="soundEffect">Sound Effect</label>
+              <select
+                id="soundEffect"
+                name="soundEffect"
+                value={settings.soundEffect}
+                onChange={handleSettingChange}
+                className="theme-select"
+                disabled={!settings.sound}
+              >
+                <option value="default">Default</option>
+                <option value="typewriter">Typewriter</option>
+                <option value="blip">Blip</option>
+                <option value="pop">Pop</option>
+                <option value="none">None</option>
+              </select>
+              <p className="setting-description">
+                Choose which sound effect set to play. Toggle Sound Effects off to mute.
               </p>
             </div>
 

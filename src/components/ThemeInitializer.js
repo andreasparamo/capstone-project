@@ -2,13 +2,13 @@
 import { useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { getUserProfile } from "@/lib/firestoreService";
+import AudioManager from "@/lib/audio";
 
 export default function ThemeInitializer() {
   const { user } = useAuth();
 
   const applyThemeClass = (theme) => {
     if (typeof document === 'undefined') return;
-    // Remove existing theme-* classes
     Array.from(document.body.classList).forEach((c) => {
       if (c.startsWith('theme-')) document.body.classList.remove(c);
     });
@@ -27,7 +27,6 @@ export default function ThemeInitializer() {
     let mounted = true;
 
     const load = async () => {
-      // 1) localStorage fallback
       try {
         const local = localStorage.getItem('ltt_settings');
         if (local) {
@@ -40,7 +39,6 @@ export default function ThemeInitializer() {
         // ignore
       }
 
-      // 2) if user is signed in, prefer server value
       if (user && user.uid) {
         try {
           const res = await getUserProfile(user.uid);
@@ -56,7 +54,35 @@ export default function ThemeInitializer() {
 
     load();
 
-    return () => { mounted = false; };
+    const onKeyDown = (e) => {
+      try {
+        const key = e.key;
+        if (!key || key.length !== 1) return; // printable only
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        let saved = null;
+        try { saved = JSON.parse(localStorage.getItem('ltt_settings') || '{}'); } catch (err) { saved = null; }
+        const enabled = saved && typeof saved.sound !== 'undefined' ? saved.sound : true;
+        const effect = saved && saved.soundEffect ? saved.soundEffect : 'default';
+        if (!enabled) return;
+
+        const ctx = AudioManager.ensure();
+        if (ctx && ctx.state === 'suspended') {
+          AudioManager.resume().catch(() => {});
+        }
+
+        AudioManager.playEffect(effect);
+      } catch (err) {
+        // ignore
+      }
+    };
+
+    document.addEventListener('keydown', onKeyDown, { passive: true });
+
+    return () => {
+      mounted = false;
+      try { document.removeEventListener('keydown', onKeyDown); } catch (e) {}
+    };
   }, [user]);
 
   return null;

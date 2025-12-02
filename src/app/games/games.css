@@ -30,6 +30,19 @@ main {
   color: transparent;
 }
 
+/* Also target plain H1 inside the hero (some pages use inline styles instead of the class) */
+.games-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .grid {
   margin-top: 1rem;
   display: grid;
