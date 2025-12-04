@@ -232,6 +232,7 @@ button.primary {
     display: none;
   }
 }
+
 /* Keyboard Jump layout and styling */
 
 .kj-wrapper {
@@ -381,18 +382,18 @@ button.primary {
 #wordfallPage #stage,
 #wordfallPage #game {
   background: linear-gradient(180deg, #0b0b0b, #050505) !important;
-  border-color: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 #wordfallPage .word {
-  background: rgba(255,255,255,0.08) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
   color: #ededed !important;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
 }
 
 #wordfallPage .thumb {
   /* keep the card thumbnail neutral when viewing the WordFall game */
-  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.04));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.04));
   color: #ededed;
 }
 
@@ -400,7 +401,7 @@ button.primary {
 #wordfallPage #typebox {
   background: #0b0b0b !important;
   color: #ededed !important;
-  border: 1px solid rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
   padding: 0.5rem 0.6rem !important;
   border-radius: 8px !important;
 }
@@ -427,24 +428,30 @@ button.primary {
   .kj-wrapper {
     padding: 12px 10px 8px;
   }
+
   .kj-header {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .kj-meta {
     justify-content: flex-start;
   }
+
   .kj-diff-select {
     justify-content: flex-start;
   }
+
   .kj-hud {
     flex-direction: column;
     align-items: stretch;
   }
+
   .kj-info {
     text-align: left;
   }
 }
+
 #kj-word-display .typed {
   color: var(--good, #59ff9a);
 }

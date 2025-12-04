@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import './games.css';
+import { useAuth } from '@/context/AuthContext';
+import { saveGameHighScore } from '@/lib/firestoreService';
 
 const WORDS = {
-  beginner: ['cat','dog','sun','tree','book','code','star','bird','fish','wind','game','home','rock','ball','milk','blue','green','happy','quick','light','train','apple','bread','mouse','table','phone','water','smile','jump','rain','cloud','river','chair','plant','paper','piano','lemon','grape','quiet','sound','truck','road','house','clock','stone','sugar','butter','cable','castle','garden','blank','simple','bright','clean','cool','fresh','sweet','tiny','brave'],
-  intermediate: ['jungle','rocket','puzzle','python','silver','laptop','winter','coffee','planet','thunder','network','battery','keyboard','monitor','quantum','dynamic','channel','gateway','compile','process','package','feature','digital','gravity','texture','control','cluster','balance','library','storage','service','latency','iterate','compute','backend','frontend','mutable','immutable','parallel','virtual','pointer','decimal','validate','optimize','fallback','tracking','partial','connect','resolve','context','adapter','decoder','encoder','handler','cursor','overlay','provider','schema'],
-  expert: ['synchronous','metamorphosis','cryptography','microarchitecture','idempotency','observability','characteristic','multiplication','thermodynamics','inconsequential','polymorphism','interoperability','disambiguation','heterogeneous','electromagnetic','parallelizable','synchronization','serialization','mischaracterize','counterintuitive','decomposition','infrastructure','deserialization','posttranslational','electrophysiology','photoautotrophic','metacognition','hyperparameter','spectrophotometer','bioluminescence','neuroplasticity','phenomenological','telecommunication','photosensitivity','computationally','indistinguishable']
+  beginner: ['cat', 'dog', 'sun', 'tree', 'book', 'code', 'star', 'bird', 'fish', 'wind', 'game', 'home', 'rock', 'ball', 'milk', 'blue', 'green', 'happy', 'quick', 'light', 'train', 'apple', 'bread', 'mouse', 'table', 'phone', 'water', 'smile', 'jump', 'rain', 'cloud', 'river', 'chair', 'plant', 'paper', 'piano', 'lemon', 'grape', 'quiet', 'sound', 'truck', 'road', 'house', 'clock', 'stone', 'sugar', 'butter', 'cable', 'castle', 'garden', 'blank', 'simple', 'bright', 'clean', 'cool', 'fresh', 'sweet', 'tiny', 'brave'],
+  intermediate: ['jungle', 'rocket', 'puzzle', 'python', 'silver', 'laptop', 'winter', 'coffee', 'planet', 'thunder', 'network', 'battery', 'keyboard', 'monitor', 'quantum', 'dynamic', 'channel', 'gateway', 'compile', 'process', 'package', 'feature', 'digital', 'gravity', 'texture', 'control', 'cluster', 'balance', 'library', 'storage', 'service', 'latency', 'iterate', 'compute', 'backend', 'frontend', 'mutable', 'immutable', 'parallel', 'virtual', 'pointer', 'decimal', 'validate', 'optimize', 'fallback', 'tracking', 'partial', 'connect', 'resolve', 'context', 'adapter', 'decoder', 'encoder', 'handler', 'cursor', 'overlay', 'provider', 'schema'],
+  expert: ['synchronous', 'metamorphosis', 'cryptography', 'microarchitecture', 'idempotency', 'observability', 'characteristic', 'multiplication', 'thermodynamics', 'inconsequential', 'polymorphism', 'interoperability', 'disambiguation', 'heterogeneous', 'electromagnetic', 'parallelizable', 'synchronization', 'serialization', 'mischaracterize', 'counterintuitive', 'decomposition', 'infrastructure', 'deserialization', 'posttranslational', 'electrophysiology', 'photoautotrophic', 'metacognition', 'hyperparameter', 'spectrophotometer', 'bioluminescence', 'neuroplasticity', 'phenomenological', 'telecommunication', 'photosensitivity', 'computationally', 'indistinguishable']
 };
 
 const PRESETS = {
@@ -45,6 +47,9 @@ export default function GamesPage() {
   const [inputValue, setInputValue] = useState('');
   const [inputError, setInputError] = useState(false);
 
+  // Get current user for saving scores
+  const { user } = useAuth();
+
   const gameRef = useRef(null);
   const typeboxRef = useRef(null);
   const requestRef = useRef();
@@ -68,7 +73,11 @@ export default function GamesPage() {
   }, [difficulty]);
 
   const spawnWord = useCallback(() => {
-    if (words.length >= 3) return;
+    // Calculate max words based on elapsed time (starts at 3, grows to 6)
+    const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
+    const maxWords = 3 + Math.floor(elapsed / 10); // +1 word every 10 seconds
+
+    if (words.length >= maxWords) return;
     if (!lanesRef.current.length) computeLanes();
 
     const used = new Set(words.map(w => w.lane));
@@ -95,9 +104,21 @@ export default function GamesPage() {
     setWords(prev => prev.filter(w => w.id !== wordId));
   }, []);
 
-  const gameOver = useCallback(() => {
+  const gameOver = useCallback(async () => {
     setRunning(false);
     setPaused(false);
+
+    // Save score to Firestore if user is logged in
+    if (user) {
+      try {
+        await saveGameHighScore(user.uid, 'wordfall', score, {
+          level,
+          difficulty
+        });
+      } catch (error) {
+        console.error('Error saving score:', error);
+      }
+    }
     setOverlayContent({
       title: 'Game Over',
       message: `Score ${score} · Level ${level}`,
@@ -108,7 +129,7 @@ export default function GamesPage() {
       }]
     });
     setOverlayVisible(true);
-  }, [score, level]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [score, level, difficulty, user]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = useCallback((dt) => {
     if (!gameRef.current) return;
@@ -122,8 +143,9 @@ export default function GamesPage() {
 
         const base = PRESETS[difficulty].baseFall;
         const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
-        const timeFactor = 1 + Math.min(1.0, elapsed * 0.004);
-        const levelFactor = 1 + (level - 1) * 0.06;
+        // Speed increases more aggressively: up to 2.5x over 2 minutes
+        const timeFactor = 1 + elapsed * 0.03;
+        const levelFactor = 1 + (level - 1) * 0.15;
         const speed = (base + Math.random() * base * 0.25) * levelFactor * timeFactor;
 
         const newY = w.y + speed * dt;
@@ -150,10 +172,14 @@ export default function GamesPage() {
     });
 
     lastSpawnRef.current += dt * 1000;
+    const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
     const baseSpawn = PRESETS[difficulty].spawn;
-    const cap = Math.max(900, baseSpawn - (level - 1) * 30);
+    const cap = Math.max(200, baseSpawn - elapsed * 16 - (level - 1) * 50);
 
-    if (lastSpawnRef.current >= cap && words.length < 3) {
+    // Dynamic max words: starts at 3, grows to 6 over time
+    const maxWords = 3 + Math.floor(elapsed / 10);
+
+    if (lastSpawnRef.current >= cap && words.length < maxWords) {
       lastSpawnRef.current = 0;
       spawnWord();
     }
@@ -393,8 +419,8 @@ export default function GamesPage() {
                     {difficulty === 'beginner'
                       ? 'Beginner'
                       : difficulty === 'intermediate'
-                      ? 'Intermediate'
-                      : 'Expert'}
+                        ? 'Intermediate'
+                        : 'Expert'}
                   </strong>
                 </span>
                 <span>Words fall faster as you level up.</span>
@@ -517,8 +543,8 @@ function KeyboardJumpGame({ onBack }) {
         label: 'Easy',
         wordLabel: 'Short Words',
         wordList: [
-          'as','to','in','on','up','cat','dog','sun','run','red',
-          'blue','home','code','play','jump','tree','ball','bird','ring','star'
+          'as', 'to', 'in', 'on', 'up', 'cat', 'dog', 'sun', 'run', 'red',
+          'blue', 'home', 'code', 'play', 'jump', 'tree', 'ball', 'bird', 'ring', 'star'
         ],
         jumpDuration: 850,
         lives: 5
@@ -528,9 +554,9 @@ function KeyboardJumpGame({ onBack }) {
         label: 'Medium',
         wordLabel: 'Standard Words',
         wordList: [
-          'as','fair','euro','tree','code','home','snow','blue','note','quick',
-          'jump','bird','star','rock','data','cloud','water','light','sound',
-          'ring','space','night','green','wind','road','grass','tiny','happy'
+          'as', 'fair', 'euro', 'tree', 'code', 'home', 'snow', 'blue', 'note', 'quick',
+          'jump', 'bird', 'star', 'rock', 'data', 'cloud', 'water', 'light', 'sound',
+          'ring', 'space', 'night', 'green', 'wind', 'road', 'grass', 'tiny', 'happy'
         ],
         jumpDuration: 650,
         lives: 3
@@ -540,9 +566,9 @@ function KeyboardJumpGame({ onBack }) {
         label: 'Hard',
         wordLabel: 'Longer Words',
         wordList: [
-          'keyboard','mountain','computer','practice','galaxy','language','journey','developer',
-          'platform','strategy','analysis','distance','umbrella','relation','solution','velocity',
-          'triangle','electron','graphics','pressure'
+          'keyboard', 'mountain', 'computer', 'practice', 'galaxy', 'language', 'journey', 'developer',
+          'platform', 'strategy', 'analysis', 'distance', 'umbrella', 'relation', 'solution', 'velocity',
+          'triangle', 'electron', 'graphics', 'pressure'
         ],
         jumpDuration: 520,
         lives: 2
