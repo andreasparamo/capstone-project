@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import './games.css';
 
-import WordFallGame from './WordFallGame';
-import KeyboardJumpGame from './KeyboardJumpGame';
+import WordFallGame from './waterFall';
+import KeyboardJumpGame from './keyBoardJump';
 
 export default function GamesPage() {
   const [currentView, setCurrentView] = useState('games'); // 'games' | 'wordfall' | 'keyboardjump'
