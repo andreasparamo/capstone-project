@@ -437,7 +437,6 @@ const fingerMap = {
   a: "LP",
   z: "LP",
   "1": "LP",
-  "!": "LP",
 
   w: "LR",
   s: "LR",
@@ -496,7 +495,7 @@ const fingerMap = {
   "’": "RP",
   '"': "RP",
   "?": "RP",
-  "!": "RP"
+  "!": "RP" // keep ! here for shifted /? usage
 };
 
 // visual keyboard layout; we’ll filter by lesson characters
@@ -649,6 +648,29 @@ function HandPlacementContent({ lesson }) {
   );
 }
 
+// --- grading helpers (accuracy-based) ---
+const GRADE_BANDS = [
+  { grade: "A+", min: 98 },
+  { grade: "A", min: 95 },
+  { grade: "A-", min: 92 },
+  { grade: "B+", min: 88 },
+  { grade: "B", min: 85 },
+  { grade: "B-", min: 82 },
+  { grade: "C+", min: 78 },
+  { grade: "C", min: 75 },
+  { grade: "C-", min: 72 },
+  { grade: "D+", min: 68 },
+  { grade: "D", min: 65 },
+  { grade: "F", min: 0 }
+];
+
+const gradeFromAcc = (acc) => {
+  for (const b of GRADE_BANDS) {
+    if (acc >= b.min) return b.grade;
+  }
+  return "F";
+};
+
 export default function LessonsPage() {
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [reviewVisible, setReviewVisible] = useState(false);
@@ -658,6 +680,79 @@ export default function LessonsPage() {
   const [keyFlash, setKeyFlash] = useState({ key: null, type: null });
   const [levelFilter, setLevelFilter] = useState("All");
   const hiddenInputRef = useRef(null);
+
+  // --- completion + grades persistence (per-user profile via localStorage) ---
+  // If you have auth later, replace PROFILE_KEY with a real user id key.
+  const PROFILE_KEY = "learntotype:userProfile";
+
+  const loadProfile = () => {
+    try {
+      return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  };
+
+  const saveProfile = (profile) => {
+    localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  };
+
+  const [profile, setProfile] = useState(null);
+
+  useEffect(() => {
+    setProfile(loadProfile());
+  }, []);
+
+  const completedLessons = useMemo(() => {
+    return new Set(profile?.completedLessons || []);
+  }, [profile]);
+
+  // results: { [lessonId]: { last:{acc,wpm,grade,at}, best:{acc,wpm,grade,at} } }
+  const resultsByLesson = useMemo(() => {
+    return profile?.lessonResults || {};
+  }, [profile]);
+
+  const recordLessonResult = useCallback((lessonId, stats) => {
+    setProfile((prev) => {
+      const p = prev ?? {};
+      const lessonResults = { ...(p.lessonResults || {}) };
+
+      const acc = stats.acc;
+      const wpm = stats.wpm;
+      const grade = gradeFromAcc(acc);
+      const now = new Date().toISOString();
+
+      const existing = lessonResults[lessonId] || null;
+      const last = { acc, wpm, grade, at: now };
+
+      let best = existing?.best || null;
+      if (!best) {
+        best = { acc, wpm, grade, at: now };
+      } else {
+        const isBetter =
+          acc > best.acc || (acc === best.acc && wpm > best.wpm);
+        if (isBetter) best = { acc, wpm, grade, at: now };
+      }
+
+      lessonResults[lessonId] = { last, best };
+
+      const prevList = Array.isArray(p.completedLessons)
+        ? p.completedLessons
+        : [];
+      const completedLessonsNext = prevList.includes(lessonId)
+        ? prevList
+        : [...prevList, lessonId];
+
+      const next = {
+        ...p,
+        completedLessons: completedLessonsNext,
+        lessonResults
+      };
+
+      saveProfile(next);
+      return next;
+    });
+  }, []);
 
   const makePages = (text) => {
     const words = text.split(/\s+/);
@@ -772,6 +867,7 @@ export default function LessonsPage() {
       reviewData: {
         wpm: stats.wpm,
         acc: stats.acc,
+        grade: lesson.lesson.infoOnly ? null : gradeFromAcc(stats.acc),
         mistakes,
         counts,
         total: lesson.pages.join("").length,
@@ -792,12 +888,14 @@ export default function LessonsPage() {
         if (L.startedAt == null) L.startedAt = Date.now();
         const expected = L.chars[L.idx];
         let ok = false;
+
         if (ch === expected) {
           ok = true;
           L.correct++;
         } else {
           L.errors++;
         }
+
         L.log.push({
           page: L.pageIndex,
           i: L.idx,
@@ -805,12 +903,15 @@ export default function LessonsPage() {
           typed: ch,
           correct: ok
         });
+
         flashKey(expected, ok);
+
         if (L.idx < L.chars.length - 1) {
           L.idx++;
           highlightForChar(L.chars[L.idx]);
           return L;
         }
+
         if (L.pageIndex < L.pages.length - 1) {
           L.pageIndex++;
           L.chars = [...L.pages[L.pageIndex]];
@@ -818,15 +919,25 @@ export default function LessonsPage() {
           highlightForChar(L.chars[0]);
           return L;
         }
+
         L.finished = true;
+
+        // compute final stats now
+        const finalStats = calculateStats(L);
+
+        // store recent + best + mark complete (skip info-only lessons)
+        if (!L.lesson.infoOnly) {
+          recordLessonResult(L.lesson.id, finalStats);
+        }
+
         setTimeout(() => {
-          const stats = calculateStats(L);
-          openReview(stats, L);
+          openReview(finalStats, L);
         }, 100);
+
         return L;
       });
     },
-    [currentLesson]
+    [currentLesson, recordLessonResult]
   );
 
   // focus only for typing lessons
@@ -891,6 +1002,7 @@ export default function LessonsPage() {
   const stats = currentLesson
     ? calculateStats(currentLesson)
     : { wpm: 0, acc: 100, prog: 0 };
+
   const filtered = LESSONS.filter((l) =>
     levelFilter === "All" ? true : l.level === levelFilter
   );
@@ -945,30 +1057,92 @@ export default function LessonsPage() {
       </section>
 
       <section className={styles.grid}>
-        {filtered.map((lesson) => (
-          <article key={lesson.id} className={styles.card}>
-            <div
+        {filtered.map((lesson) => {
+          const isComplete =
+            !lesson.infoOnly && completedLessons.has(lesson.id);
+
+          const res = resultsByLesson?.[lesson.id] || null;
+          const recentGrade = res?.last?.grade || null;
+          const bestGrade = res?.best?.grade || null;
+
+          return (
+            <article
+              key={lesson.id}
+              className={styles.card}
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: ".5rem"
+                position: "relative",
+                // ✅ space so the Complete badge never overlaps the Start button
+                paddingBottom: isComplete ? "64px" : undefined
               }}
             >
-              <h3>{lesson.title}</h3>
-              <span className={styles.badge}>{lesson.level}</span>
-            </div>
-            <p className={styles.muted}>{lesson.description}</p>
-            <div className={styles.actions}>
-              <button
-                className={styles.btn}
-                onClick={() => startLesson(lesson)}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  gap: ".5rem"
+                }}
               >
-                Start
-              </button>
-            </div>
-          </article>
-        ))}
+                <h3>{lesson.title}</h3>
+                <span className={styles.badge}>{lesson.level}</span>
+              </div>
+
+              <p className={styles.muted}>{lesson.description}</p>
+
+              <div
+                className={styles.actions}
+                style={{ position: "relative", zIndex: 1 }}
+              >
+                <button
+                  className={styles.btn}
+                  onClick={() => startLesson(lesson)}
+                >
+                  Start
+                </button>
+              </div>
+
+              {isComplete && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "12px",
+                    bottom: "12px",
+                    padding: "6px 10px",
+                    borderRadius: "999px",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    letterSpacing: ".2px",
+                    background: "rgba(34,197,94,.16)",
+                    border: "1px solid rgba(34,197,94,.45)",
+                    display: "flex",
+                    gap: "8px",
+                    alignItems: "center",
+                    flexWrap: "wrap",
+                    // ✅ badge won't interfere with clicking Start
+                    pointerEvents: "none"
+                  }}
+                  title={
+                    recentGrade && bestGrade
+                      ? `Recent: ${recentGrade} | Best: ${bestGrade}`
+                      : "Complete"
+                  }
+                >
+                  <span>Complete</span>
+                  {recentGrade && (
+                    <span style={{ opacity: 0.92 }}>
+                      Recent <strong>{recentGrade}</strong>
+                    </span>
+                  )}
+                  {bestGrade && (
+                    <span style={{ opacity: 0.92 }}>
+                      Best <strong>{bestGrade}</strong>
+                    </span>
+                  )}
+                </div>
+              )}
+            </article>
+          );
+        })}
       </section>
 
       {overlayVisible && currentLesson && (
@@ -1161,11 +1335,14 @@ export default function LessonsPage() {
               <span className={styles.chip}>
                 Accuracy <strong>{currentLesson.reviewData.acc}</strong>
               </span>
+              {currentLesson.reviewData.grade && (
+                <span className={styles.chip}>
+                  Grade <strong>{currentLesson.reviewData.grade}</strong>
+                </span>
+              )}
               <span className={styles.chip}>
                 Errors{" "}
-                <strong>
-                  {currentLesson.reviewData.mistakes.length}
-                </strong>
+                <strong>{currentLesson.reviewData.mistakes.length}</strong>
               </span>
               <span className={styles.chip}>
                 Typed <strong>{currentLesson.reviewData.total}</strong>
@@ -1173,9 +1350,7 @@ export default function LessonsPage() {
               <span className={styles.chip}>
                 Date{" "}
                 <strong>
-                  {new Date(
-                    currentLesson.reviewData.date
-                  ).toLocaleString()}
+                  {new Date(currentLesson.reviewData.date).toLocaleString()}
                 </strong>
               </span>
             </div>
