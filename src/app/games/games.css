@@ -19,6 +19,30 @@ main {
   margin-top: 1.2rem;
 }
 
+.games-hero .games-title {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Also target plain H1 inside the hero (some pages use inline styles instead of the class) */
+.games-hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: .3px;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
 .grid {
   margin-top: 1rem;
   display: grid;
@@ -50,7 +74,7 @@ main {
 .card .thumb {
   height: 140px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #667eea55, #764ba255);
+  background: linear-gradient(135deg, rgba(var(--accent-1-rgb), .33), rgba(var(--accent-2-rgb), .33));
   border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
@@ -81,9 +105,9 @@ main {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   border: none;
-  color: #03120a;
+  color: var(--on-accent, #fff);
   font-weight: 600;
 }
 
@@ -169,9 +193,9 @@ button {
 }
 
 button.primary {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   border: none;
-  color: #03120a;
+  color: var(--on-accent, #fff);
   font-weight: 600;
 }
 
@@ -207,4 +231,232 @@ button.primary {
   .nav-links {
     display: none;
   }
+}
+
+/* Keyboard Jump layout and styling */
+
+.kj-wrapper {
+  background: #18202f;
+  border-radius: 18px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+  padding: 16px 16px 10px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 980px;
+  margin: 18px auto 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kj-wrapper:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+}
+
+.kj-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+
+.kj-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.kj-meta {
+  font-size: 13px;
+  opacity: 0.85;
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.kj-meta span {
+  white-space: nowrap;
+}
+
+.kj-diff-select {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent-1);
+}
+
+.kj-diff-label {
+  opacity: 0.8;
+}
+
+/* Difficulty pills for Keyboard Jump only */
+.kj-diff-btn {
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(7, 12, 25, 0.85);
+  color: var(--text);
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:
+    background 0.18s ease,
+    transform 0.16s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.kj-diff-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  border-color: rgba(var(--accent-1-rgb), .8);
+}
+
+.kj-diff-btn.active {
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  color: var(--on-accent, #fff);
+  border-color: transparent;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+}
+
+.kj-canvas {
+  border-radius: 14px;
+  background: linear-gradient(rgba(var(--accent-1-rgb), .55), rgba(var(--accent-2-rgb), .35));
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.kj-hud {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  gap: 10px;
+}
+
+.kj-word-box {
+  background: #111927;
+  border-radius: 10px;
+  padding: 6px 10px;
+  flex: 2;
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+}
+
+.kj-word-label {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--accent-1);
+}
+
+#kj-word-display {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+#kj-word-display .typed {
+  color: var(--good, #59ff9a);
+}
+
+#kj-word-display .remaining {
+  color: var(--text);
+  opacity: 0.9;
+}
+
+/* WordFall: keep neutral black & white appearance regardless of theme */
+#wordfallPage #stage,
+#wordfallPage #game {
+  background: linear-gradient(180deg, #0b0b0b, #050505) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#wordfallPage .word {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ededed !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+}
+
+#wordfallPage .thumb {
+  /* keep the card thumbnail neutral when viewing the WordFall game */
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.04));
+  color: #ededed;
+}
+
+/* WordFall input: keep neutral appearance regardless of theme */
+#wordfallPage #typebox {
+  background: #0b0b0b !important;
+  color: #ededed !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  padding: 0.5rem 0.6rem !important;
+  border-radius: 8px !important;
+}
+
+.kj-info {
+  flex: 1;
+  font-size: 12px;
+  text-align: right;
+  opacity: 0.85;
+}
+
+.kj-info strong {
+  font-size: 13px;
+}
+
+.kj-footer {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  .kj-wrapper {
+    padding: 12px 10px 8px;
+  }
+
+  .kj-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kj-meta {
+    justify-content: flex-start;
+  }
+
+  .kj-diff-select {
+    justify-content: flex-start;
+  }
+
+  .kj-hud {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kj-info {
+    text-align: left;
+  }
+}
+
+#kj-word-display .typed {
+  color: var(--good, #59ff9a);
+}
+
+#kj-word-display .remaining {
+  color: var(--text);
+  opacity: 0.9;
 }
