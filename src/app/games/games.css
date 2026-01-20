@@ -51,13 +51,20 @@ main {
 }
 
 .card {
-  background: #0c0c0c;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 16px;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--accent-1-rgb), 0.4);
+  box-shadow: 0 8px 24px rgba(var(--accent-1-rgb), 0.1);
 }
 
 .card h3 {
@@ -67,7 +74,7 @@ main {
 
 .card p {
   margin: 0;
-  color: #a1a1aa;
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
@@ -75,7 +82,7 @@ main {
   height: 140px;
   border-radius: 12px;
   background: linear-gradient(135deg, rgba(var(--accent-1-rgb), .33), rgba(var(--accent-2-rgb), .33));
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -91,9 +98,9 @@ main {
 }
 
 .btn {
-  background: #0b0b0b;
-  color: #ededed;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
   padding: 0.55rem 0.8rem;
   border-radius: 10px;
   text-decoration: none;
@@ -102,6 +109,11 @@ main {
   gap: 0.4rem;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
 }
 
 .btn.primary {
@@ -109,6 +121,11 @@ main {
   border: none;
   color: var(--on-accent, #fff);
   font-weight: 600;
+}
+
+.btn.primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--accent-1-rgb), 0.25);
 }
 
 #wordfallPage {

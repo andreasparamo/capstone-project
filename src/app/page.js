@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { SparklesCore } from "@/src/components/ui/sparkles";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -54,14 +55,28 @@ export default function Login() {
       justifyContent: 'center',
       minHeight: '100vh',
       padding: '2rem',
-      gap: '3rem'
+      gap: '3rem',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <div style={{ textAlign: 'center' }}>
+      <div className="absolute inset-0 w-full h-full">
+        <SparklesCore
+          id="tsparticlesfullpage"
+          background="transparent"
+          minSize={0.6}
+          maxSize={1.4}
+          particleDensity={100}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 10 }}>
         <h1 className="welcome-title">Welcome to LearnToType</h1>
         <p className="welcome-subtitle">Intuitive Typing Practice Platform</p>
       </div>
 
-      <div className="login-box">
+      <div className="login-box" style={{ position: 'relative', zIndex: 20 }}>
         <h2>{isSignup ? "Create Account" : "Welcome Back"}</h2>
 
         {error && <div className="error-message">{error}</div>}

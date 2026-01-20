@@ -49,59 +49,81 @@ Built with a focus on **speed, accuracy, analytics, and fun**, LearnToType is de
 -  **Google Analytics Integration**  
   Track user activity and engagement with a custom analytics hook.
 
-## Run Instructions
+## Getting Started
 
 ### Prerequisites
-Make sure to have the following installed:
-- Node.js
-- npm
-- Firebase CLI
-- Next.js
 
-### Environment Setup
-Create a `.env.local` file in the root directory with your Firebase configuration:
-```env
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key_here
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id_here
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id_here
-```
+Ensure you have the following installed:
+- **Node.js** (v18+ recommended)
+- **npm** or **yarn**
+- **Git**
 
-**To get your Firebase configuration values:**
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Select your project
-3. Click the **gear icon** next to "Project Overview" in the left sidebar
-4. Select **Project settings**
-5. In General, Scroll down to **Your apps** section
-6. Click on the **</>** Web app icon for LearnToType
-7. Under **SDK setup and configuration**, select **Config**
-8. Copy the values from the `firebaseConfig` object to your `.env.local` file
+### Installation
 
-### Development Mode
-1. Install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/andreasparamo/capstone-project.git
+   cd capstone-project
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Run the development server:
-   ```bash
-   npm run dev
+3. **Configure Environment Variables**
+   Create a `.env.local` file in the root directory with your Firebase configuration:
+   
+   ```env
+   NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
    ```
+   *(See Firebase Console > Project Settings > General > Your apps > Config to get these values)*
 
-3. Open your browser and navigate to `http://localhost:3000`
+### Running Locally
 
-### Firebase Emulators (Optional)
-To test with Firebase emulators:
+Start the development server:
 ```bash
-firebase emulators:start
+npm run dev
 ```
 
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Development Workflow
+
+### Project Structure
+- `src/app`: Next.js App Router pages and layouts
+- `src/components`: Custom UI components
+- `src/components/ui`: Reusable shadcn/aceternity components (e.g. Sparkles)
+- `src/lib` / `lib`: Utility functions and Firebase configuration
+- `public`: Static assets
+
+### Styling & Components
+This project uses **Tailwind CSS v3** and **shadcn/ui**.
+
+- **Tailwind**: Use standard utility classes (e.g., `flex`, `p-4`).
+- **Theme**: The app uses CSS variables for theming, mapped to Tailwind colors:
+  - `bg-background`, `text-foreground`
+  - `bg-accent`, `text-accent` (Devolver Red)
+  - `border-border`
+- **Adding Components**: To add a new shadcn component:
+  ```bash
+  npx shadcn@latest add [component-name]
+  ```
+
 ### Deployment
-To deploy new changes to Firebase Hosting:
+Build for production:
 ```bash
 npm run build
+```
+Deploy to Firebase:
+```bash
 firebase deploy
 ```
 

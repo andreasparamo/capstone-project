@@ -45,36 +45,46 @@ export default function SettingsModal({ isOpen, onClose }) {
   // Load saved settings when modal opens
   useEffect(() => {
     if (!isOpen) return;
-    // capture previous theme to allow cancel/restore
+
+    // Capture current theme class ONCE when modal opens (for cancel/restore)
+    // This prevents flicker by not re-applying themes during load
     previousThemeRef.current = getCurrentThemeClass();
 
     const load = async () => {
+      let loadedSettings = { theme: "dark", sound: true, soundEffect: "default" };
+
       // Try localStorage first
       try {
         const local = localStorage.getItem('ltt_settings');
         if (local) {
           const parsed = JSON.parse(local);
-          setSettings((prev) => ({ ...prev, ...parsed }));
-          // preview
-          if (parsed.theme) applyThemeClass(parsed.theme);
+          if (parsed && typeof parsed === 'object') {
+            loadedSettings = { ...loadedSettings, ...parsed };
+          }
         }
       } catch (e) {
-        // ignore
+        console.warn('Failed to parse localStorage settings:', e);
       }
 
       // If user is signed in, load from profile and override
       if (user && user.uid) {
-        const res = await getUserProfile(user.uid);
-        if (res.success && res.data && res.data.settings) {
-          setSettings((prev) => ({ ...prev, ...res.data.settings }));
-          if (res.data.settings.theme) applyThemeClass(res.data.settings.theme);
+        try {
+          const res = await getUserProfile(user.uid);
+          if (res && res.success && res.data && res.data.settings) {
+            loadedSettings = { ...loadedSettings, ...res.data.settings };
+          }
+        } catch (e) {
+          console.warn('Failed to load user profile settings:', e);
         }
       }
+
+      // Set state once with final merged settings (no theme application here)
+      setSettings(loadedSettings);
     };
 
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, user?.uid]);
 
   // Handle input changes and preview theme immediately for quick feedback
   const handleSettingChange = (e) => {
@@ -258,8 +268,7 @@ export default function SettingsModal({ isOpen, onClose }) {
                 onChange={handleSettingChange}
                 className="theme-select"
               >
-                <option value="dark">Dark</option>
-                <option value="auto">Auto</option>
+                <option value="dark">Dark (default)</option>
                 <option value="ocean">Ocean Blue</option>
                 <option value="forest">Forest Green</option>
                 <option value="sunset">Sunset</option>

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -12,14 +16,15 @@
   --text: #ededed;
   --muted: #a1a1aa;
   --border: rgba(255, 255, 255, 0.1);
-  --accent-1: #667eea;
-  /* blue-purple */
-  --accent-2: #764ba2;
-  /* purple */
+  --accent-1: #DA534F;
+  /* Devolver red */
+  --accent-2: #ff6b6b;
+  /* lighter red */
   /* RGB forms for use in rgba() in module CSS */
-  --accent-1-rgb: 102, 126, 234;
-  --accent-2-rgb: 118, 75, 162;
+  --accent-1-rgb: 218, 83, 79;
+  --accent-2-rgb: 255, 107, 107;
   --glass: rgba(255, 255, 255, 0.05);
+  --card-bg: #000000;
 }
 
 /* Transition helper used for theme preview */
@@ -102,16 +107,19 @@ body,
   transform 250ms ease;
 }
 
-/* Dark (default) */
+/* Dark (default) - Devolver Digital inspired */
 .theme-dark {
-  --bg: #0b0b0b;
-  --surface: rgba(0, 0, 0, 0.6);
-  --text: #ededed;
-  --muted: #a1a1aa;
-  --border: rgba(255, 255, 255, 0.1);
+  --bg: #131313;
+  --surface: rgba(0, 0, 0, 0.8);
+  --text: #ffffff;
+  --muted: #7c7c7c;
+  --border: rgba(255, 255, 255, 0.15);
   --glass: rgba(255, 255, 255, 0.05);
-  --accent-1-rgb: 102, 126, 234;
-  --accent-2-rgb: 118, 75, 162;
+  --accent-1: #DA534F;
+  --accent-2: #ff6b6b;
+  --accent-1-rgb: 218, 83, 79;
+  --accent-2-rgb: 255, 107, 107;
+  --card-bg: #000000;
 }
 
 /* Light */
@@ -126,6 +134,7 @@ body,
   --accent-2: #7c3aed;
   --accent-1-rgb: 37, 99, 235;
   --accent-2-rgb: 124, 58, 237;
+  --card-bg: #ffffff;
 }
 
 /* Ocean Blue */
@@ -140,6 +149,7 @@ body,
   --accent-2: #0066cc;
   --accent-1-rgb: 0, 170, 255;
   --accent-2-rgb: 0, 102, 204;
+  --card-bg: #000000;
 }
 
 /* Forest Green */
@@ -154,6 +164,7 @@ body,
   --accent-2: #065f46;
   --accent-1-rgb: 22, 163, 74;
   --accent-2-rgb: 6, 95, 70;
+  --card-bg: #000000;
 }
 
 /* Sunset */
@@ -168,6 +179,7 @@ body,
   --accent-2: #ff3b3b;
   --accent-1-rgb: 255, 122, 89;
   --accent-2-rgb: 255, 59, 59;
+  --card-bg: #000000;
 }
 
 /* Sunrise: warm, soft morning tones */
@@ -190,6 +202,7 @@ body,
   /* Soft cream */
   --accent-1-rgb: 218, 185, 107;
   --accent-2-rgb: 201, 168, 87;
+  --card-bg: #000000;
 }
 
 /* Midnight */
@@ -204,6 +217,7 @@ body,
   --accent-2: #06b6d4;
   --accent-1-rgb: 79, 70, 229;
   --accent-2-rgb: 6, 182, 212;
+  --card-bg: #000000;
 }
 
 /* Auto: respect OS preference via JS; this class is a marker for JS */
@@ -387,7 +401,7 @@ body::before {
 }
 
 .login-box input:focus {
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: rgba(var(--accent-1-rgb), 0.5);
 }
 
 .login-box input::placeholder {
@@ -396,7 +410,7 @@ body::before {
 
 .login-box button[type="submit"] {
   width: 100%;
-  padding: 12px;
+  padding: 8px 12px;
   margin-bottom: 16px;
   border: none;
   border-radius: 8px;
@@ -415,7 +429,7 @@ body::before {
 
 .google-btn {
   width: 100%;
-  padding: 12px;
+  padding: 8px 12px;
   margin-bottom: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
@@ -464,7 +478,7 @@ body::before {
 
 .google-btn {
   width: 100%;
-  padding: 12px;
+  padding: 8px 12px;
   margin-bottom: 20px;
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -676,7 +690,7 @@ button:disabled {
 
 .form-group input:focus,
 .form-group textarea:focus {
-  border-color: rgba(102, 126, 234, 0.5);
+  border-color: rgba(var(--accent-1-rgb), 0.5);
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -699,7 +713,7 @@ button:disabled {
 
 .btn-primary,
 .btn-secondary {
-  padding: 12px 24px;
+  padding: 8px 16px;
   border: none;
   border-radius: 8px;
   font-size: 14px;
@@ -772,21 +786,31 @@ button:disabled {
 
 .theme-select {
   width: 100%;
-  padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 10px 16px;
+  padding-right: 36px; /* Space for arrow */
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 14px;
-  color: #ededed;
+  font-weight: 500;
+  color: var(--text);
   outline: none;
   transition: all 0.2s ease;
   cursor: pointer;
   font-family: inherit;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ededed' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  color-scheme: dark; 
 }
 
 .theme-select:focus {
-  border-color: rgba(102, 126, 234, 0.5);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(var(--accent-1-rgb), 0.8);
+  box-shadow: 0 0 0 3px rgba(var(--accent-1-rgb), 0.15);
+  background-color: var(--bg);
 }
 
 .theme-select option {
@@ -1095,4 +1119,64 @@ button:disabled {
 
 .toggle-btn:hover:not(:disabled)::after {
   width: 100%;
+}
+
+/* ============================================
+   GLOBAL REUSABLE COMPONENTS
+   Use these classes across any page
+   ============================================ */
+
+/* Global Card - hover lift + accent border glow */
+.g-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.g-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(var(--accent-1-rgb), 0.4);
+  box-shadow: 0 8px 24px rgba(var(--accent-1-rgb), 0.1);
+}
+
+/* Global Button - gradient accent */
+.g-btn {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  color: var(--on-accent, #fff);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.g-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(var(--accent-1-rgb), 0.25);
+}
+
+.g-btn:active {
+  transform: translateY(0);
+}
+
+.g-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Global Badge */
+.g-badge {
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.5rem;
+  color: var(--muted);
+  background: var(--glass);
 }

@@ -7,8 +7,7 @@ export default function ProfileModal({ isOpen, onClose }) {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState({
     displayName: "",
-    email: "",
-    bio: ""
+    email: ""
   });
   const [loading, setLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
@@ -22,15 +21,13 @@ export default function ProfileModal({ isOpen, onClose }) {
         if (result.success && result.data) {
           setProfileData({
             displayName: result.data.displayName || user.displayName || "",
-            email: user.email || "",
-            bio: result.data.bio || ""
+            email: user.email || ""
           });
         } else {
           // If no profile exists, use auth data
           setProfileData({
             displayName: user.displayName || "",
-            email: user.email || "",
-            bio: ""
+            email: user.email || ""
           });
         }
       }
@@ -57,8 +54,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
     try {
       const result = await updateUserProfile(user.uid, {
-        displayName: profileData.displayName,
-        bio: profileData.bio
+        displayName: profileData.displayName
       });
 
       if (result.success) {
@@ -112,18 +108,6 @@ export default function ProfileModal({ isOpen, onClose }) {
               onChange={handleProfileChange}
               placeholder="Enter your email"
               disabled
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={profileData.bio}
-              onChange={handleProfileChange}
-              placeholder="Tell us about yourself"
-              rows="4"
             />
           </div>
           <div className="modal-actions">

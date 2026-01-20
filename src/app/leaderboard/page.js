@@ -96,6 +96,7 @@ export default function LeaderboardPage() {
             id="gameSelect"
             value={selectedGame}
             onChange={(e) => setSelectedGame(e.target.value)}
+            className="theme-select game-select"
           >
             {availableGames.length > 0 ? (
               availableGames.map((game) => (

@@ -1071,8 +1071,8 @@ export default function LessonsPage() {
               className={styles.card}
               style={{
                 position: "relative",
-                // ✅ space so the Complete badge never overlaps the Start button
-                paddingBottom: isComplete ? "64px" : undefined
+                display: "flex",
+                flexDirection: "column"
               }}
             >
               <div
@@ -1091,7 +1091,15 @@ export default function LessonsPage() {
 
               <div
                 className={styles.actions}
-                style={{ position: "relative", zIndex: 1 }}
+                style={{
+                  position: "relative",
+                  zIndex: 1,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "12px",
+                  marginTop: "auto"
+                }}
               >
                 <button
                   className={styles.btn}
@@ -1099,47 +1107,42 @@ export default function LessonsPage() {
                 >
                   Start
                 </button>
-              </div>
 
-              {isComplete && (
-                <div
-                  style={{
-                    position: "absolute",
-                    right: "12px",
-                    bottom: "12px",
-                    padding: "6px 10px",
-                    borderRadius: "999px",
-                    fontSize: "12px",
-                    fontWeight: 800,
-                    letterSpacing: ".2px",
-                    background: "rgba(34,197,94,.16)",
-                    border: "1px solid rgba(34,197,94,.45)",
-                    display: "flex",
-                    gap: "8px",
-                    alignItems: "center",
-                    flexWrap: "wrap",
-                    // ✅ badge won't interfere with clicking Start
-                    pointerEvents: "none"
-                  }}
-                  title={
-                    recentGrade && bestGrade
-                      ? `Recent: ${recentGrade} | Best: ${bestGrade}`
-                      : "Complete"
-                  }
-                >
-                  <span>Complete</span>
-                  {recentGrade && (
-                    <span style={{ opacity: 0.92 }}>
-                      Recent <strong>{recentGrade}</strong>
-                    </span>
-                  )}
-                  {bestGrade && (
-                    <span style={{ opacity: 0.92 }}>
-                      Best <strong>{bestGrade}</strong>
-                    </span>
-                  )}
-                </div>
-              )}
+                {isComplete && (
+                  <div
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: "999px",
+                      fontSize: "12px",
+                      fontWeight: 800,
+                      letterSpacing: ".2px",
+                      background: "rgba(34,197,94,.16)",
+                      border: "1px solid rgba(34,197,94,.45)",
+                      display: "flex",
+                      gap: "8px",
+                      alignItems: "center",
+                      flexShrink: 0
+                    }}
+                    title={
+                      recentGrade && bestGrade
+                        ? `Recent: ${recentGrade} | Best: ${bestGrade}`
+                        : "Complete"
+                    }
+                  >
+                    <span style={{ fontSize: "16px" }}>✓</span>
+                    {recentGrade && (
+                      <span style={{ opacity: 0.92 }}>
+                        Recent <strong>{recentGrade}</strong>
+                      </span>
+                    )}
+                    {bestGrade && (
+                      <span style={{ opacity: 0.92 }}>
+                        Best <strong>{bestGrade}</strong>
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </article>
           );
         })}

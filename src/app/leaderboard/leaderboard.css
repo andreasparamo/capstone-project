@@ -7,7 +7,7 @@ main {
 }
 
 .muted {
-  color: #a1a1aa;
+  color: var(--muted);
 }
 
 .error {
@@ -46,52 +46,22 @@ main {
 
 .leaderboard-controls label {
   font-weight: 600;
-  color: #ededed;
+  color: var(--text);
 }
 
-.leaderboard-controls select {
-  background-color: #0a0a0a;
-  color: #ededed;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 14px;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  min-width: 180px;
-  transition: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ededed' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
-}
-
-.leaderboard-controls select:hover {
-  background-color: #1a1a1a;
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.leaderboard-controls select:focus {
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-}
-
-.leaderboard-controls select option {
-  background: #0a0a0a;
-  color: #ededed;
-  padding: 12px;
-}
+/* Select styles moved to globals.css (.theme-select) */
 
 .leaderboard-table-container {
   margin-top: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
   border-radius: 16px;
-  background: #0c0c0c;
+  background: var(--bg);
   overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.leaderboard-table-container:hover {
+  border-color: rgba(var(--accent-1-rgb), 0.3);
 }
 
 .leaderboard-table {
@@ -108,7 +78,7 @@ main {
   padding: 1rem;
   text-align: left;
   font-weight: 600;
-  color: #ededed;
+  color: var(--text);
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -129,7 +99,7 @@ main {
 
 .leaderboard-table td {
   padding: 1rem;
-  color: #d4d4d8;
+  color: var(--text);
 }
 
 .rank-cell {
@@ -144,7 +114,7 @@ main {
 }
 
 .rank-number {
-  color: #a1a1aa;
+  color: var(--muted);
 }
 
 .leaderboard-table tr.rank-1 {
@@ -279,4 +249,26 @@ main {
   .leaderboard-controls select {
     width: 100%;
   }
+}
+
+/* Specific styling for the game selector to make it pop */
+.game-select {
+  width: auto;
+  min-width: 180px;
+  max-width: 220px;
+  background-color: #000000; /* Pure black to pop */
+  border: 1px solid rgba(var(--accent-1-rgb), 0.4); /* Subtle accent border */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Depth shadow */
+  transition: all 0.2s ease;
+}
+
+.game-select:hover {
+  border-color: rgba(var(--accent-1-rgb), 0.7);
+  box-shadow: 0 6px 25px rgba(var(--accent-1-rgb), 0.15);
+  transform: translateY(-1px);
+}
+
+.game-select:focus {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 2px rgba(var(--accent-1-rgb), 0.25);
 }
