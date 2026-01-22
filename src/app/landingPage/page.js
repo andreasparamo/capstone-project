@@ -9,7 +9,7 @@ export default function LandingPage() {
         <h1 className="welcome-title">
           Learn to Type{" "}
           <ContainerTextFlip
-            words={["Faster", "Smarter", "Better", "Efficiently"]}
+            words={["Faster", "Smarter", "Better"]}
             interval={2500}
           />
         </h1>

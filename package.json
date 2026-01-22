@@ -12,11 +12,13 @@
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",
     "@tsparticles/slim": "^3.9.1",
+    "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
     "firebase": "^12.6.0",
     "framer-motion": "^12.27.5",
     "next": "^16.0.7",
     "react": "^19.2.1",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.1",
     "tailwind-merge": "^3.4.0"
   },
