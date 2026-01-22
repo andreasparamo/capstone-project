@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./tests.module.css";
+import ResultsModal from "@/src/components/ResultsModal";
 
 // Deterministic seed helpers (same on server and client)
 function hashString(str) {
@@ -160,6 +161,13 @@ export default function TestsPage() {
       return;
     }
 
+    // Tab to restart
+    if (key === "Tab") {
+      e.preventDefault();
+      restart();
+      return;
+    }
+
     // Accept single printable characters only
     if (key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
       e.preventDefault();
@@ -273,37 +281,24 @@ export default function TestsPage() {
         />
 
         <div className={styles.controls}>
-          {!showResults ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <button className={styles.action} onClick={restart} type="button">
               Reset
             </button>
-          ) : (
-            <button
-              className={`${styles.action} ${styles.primary}`}
-              onClick={restart}
-              type="button"
-            >
-              Try again
-            </button>
-          )}
+            <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.5rem" }}>
+              press tab to restart
+            </span>
+          </div>
         </div>
 
-        {showResults && (
-          <div className={`${styles.results} ${styles.fadeIn}`}>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>WPM</span>
-              <strong className={styles.value}>{stats.wpm}</strong>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>Accuracy</span>
-              <strong className={styles.value}>{stats.acc}%</strong>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>Test</span>
-              <strong className={styles.value}>{mode}</strong>
-            </div>
-          </div>
-        )}
+        {/* Results Modal */}
+        <ResultsModal
+          isOpen={showResults}
+          onClose={() => setShowResults(false)}
+          onRestart={restart}
+          stats={stats}
+          mode={mode}
+        />
       </section>
     </main>
   );
