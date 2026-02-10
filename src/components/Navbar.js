@@ -82,6 +82,9 @@ export default function Navbar() {
           <nav>
             <ul className="nav-links">
               <li>
+                <Link href="/battle">Battle</Link>
+              </li>
+              <li>
                 <Link href="/tests">Tests</Link>
               </li>
               <li>
@@ -104,36 +107,38 @@ export default function Navbar() {
               onClick={toggleDropdown}
               aria-label="User menu"
               style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '50%',
-                border: '2px solid var(--border)',
-                background: 'linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%)',
-                color: 'var(--on-accent, #fff)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                padding: 0
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                border: "2px solid var(--border)",
+                background:
+                  "linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 100%)",
+                color: "var(--on-accent, #fff)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                padding: 0,
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'scale(1.1)';
-                e.currentTarget.style.borderColor = 'rgba(var(--accent-1-rgb), .45)';
+                e.currentTarget.style.transform = "scale(1.1)";
+                e.currentTarget.style.borderColor =
+                  "rgba(var(--accent-1-rgb), .45)";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'scale(1)';
-                e.currentTarget.style.borderColor = 'var(--border)';
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.borderColor = "var(--border)";
               }}
             >
-              <svg 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
                 strokeLinejoin="round"
               >
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
