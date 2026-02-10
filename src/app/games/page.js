@@ -510,7 +510,7 @@ export default function GamesPage() {
   if (currentView === 'keyboardjump') {
     return (
       <main>
-        <KeyboardJumpGame onBack={() => setCurrentView('games')} />
+        <KeyboardJumpGame onBack={() => setCurrentView('games')} user={user} />
       </main>
     );
   }
@@ -522,7 +522,7 @@ export default function GamesPage() {
 // KEYBOARD JUMP GAME COMPONENT
 // ---------------------------------------------------------------------
 
-function KeyboardJumpGame({ onBack }) {
+function KeyboardJumpGame({ onBack, user }) {
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -801,21 +801,45 @@ function KeyboardJumpGame({ onBack }) {
       gameState = 'playing';
     }
 
-    function showLevelSummary(isFinal) {
+    async function showLevelSummary(isFinal) {
       const summary = computeSummary();
       summary.isFinal = isFinal;
       summaryData = summary;
       gameState = 'summary';
+
+      // Save score to Firestore if user is logged in
+      if (user && isFinal) {
+        try {
+          await saveGameHighScore(user.uid, 'keyboardjump', score, {
+            level,
+            difficulty: difficultyKey
+          });
+        } catch (error) {
+          console.error('Error saving Keyboard Jump score:', error);
+        }
+      }
     }
 
-    function handleLevelComplete() {
+    async function handleLevelComplete() {
       const isFinal = level >= maxLevels;
-      showLevelSummary(isFinal);
+      await showLevelSummary(isFinal);
     }
 
-    function endGameLose() {
+    async function endGameLose() {
       gameState = 'gameOver';
       messageText = 'GAME OVER. Press any key to restart from Level 1.';
+
+      // Save score to Firestore if user is logged in
+      if (user) {
+        try {
+          await saveGameHighScore(user.uid, 'keyboardjump', score, {
+            level,
+            difficulty: difficultyKey
+          });
+        } catch (error) {
+          console.error('Error saving Keyboard Jump score:', error);
+        }
+      }
     }
 
     function handleWordComplete() {

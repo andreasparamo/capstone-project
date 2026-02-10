@@ -1,0 +1,62 @@
+.container {
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.statsContainer {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+}
+
+.stat {
+  font-size: 1.1rem;
+}
+
+.codeContainer {
+  background-color: var(--card-bg);
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+  max-height: 400px;
+  overflow: auto;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 1.2rem;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.char {
+  transition: all 0.1s;
+}
+
+.typed {
+  color: #4CAF50;
+}
+
+.cursor {
+  background-color: rgba(100, 150, 255, 0.3);
+}
+
+.hiddenInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.hint {
+  text-align: center;
+  margin-top: 15px;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
