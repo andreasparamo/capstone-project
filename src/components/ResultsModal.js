@@ -1,7 +1,9 @@
 "use client";
 import { useEffect, useRef } from "react";
+import WpmChart from "@/src/components/WpmChart";
+import useThemeColors from "@/src/hooks/useThemeColors";
 
-export default function ResultsModal({ isOpen, onClose, onRestart, stats, mode }) {
+export default function ResultsModal({ isOpen, onClose, onRestart, stats, mode, wpmHistory }) {
   // Use refs to keep callback references stable
   const onCloseRef = useRef(onClose);
   const onRestartRef = useRef(onRestart);
@@ -10,6 +12,8 @@ export default function ResultsModal({ isOpen, onClose, onRestart, stats, mode }
     onCloseRef.current = onClose;
     onRestartRef.current = onRestart;
   });
+
+  const colors = useThemeColors();
 
   // Keyboard shortcuts: Escape to close, Tab to restart
   useEffect(() => {
@@ -51,40 +55,42 @@ export default function ResultsModal({ isOpen, onClose, onRestart, stats, mode }
           marginBottom: "1.5rem",
           flexShrink: 0
         }}>
-          <h2 style={{ margin: "0 0 1rem 0", fontSize: "1.5rem", color: "var(--text)" }}>Test Complete</h2>
+          <h2 style={{ margin: "0 0 1rem 0", fontSize: "1.5rem", color: colors.text }}>Test Complete</h2>
           <div style={{ display: "flex", gap: "3rem" }}>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)", textTransform: "uppercase" }}>WPM</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "var(--accent-1)" }}>{stats.wpm}</div>
+              <div style={{ fontSize: "0.75rem", color: colors.muted, textTransform: "uppercase" }}>WPM</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: colors.accent1 }}>{stats.wpm}</div>
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)", textTransform: "uppercase" }}>Accuracy</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "var(--accent-1)" }}>{stats.acc}%</div>
+              <div style={{ fontSize: "0.75rem", color: colors.muted, textTransform: "uppercase" }}>Accuracy</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: colors.accent1 }}>{stats.acc}%</div>
             </div>
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontSize: "0.75rem", color: "var(--muted)", textTransform: "uppercase" }}>Mode</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "var(--accent-1)" }}>{mode}</div>
+              <div style={{ fontSize: "0.75rem", color: colors.muted, textTransform: "uppercase" }}>Mode</div>
+              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: colors.accent1 }}>{mode}</div>
             </div>
           </div>
         </div>
 
         {/* Graph Area - takes remaining space */}
         <div 
-          className="graph-placeholder" 
           style={{
             flex: 1,
             width: "100%",
             minHeight: "300px",
-            border: "2px dashed var(--border)",
             borderRadius: "8px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "var(--muted)",
-            background: "rgba(255, 255, 255, 0.02)"
+            background: "rgba(255, 255, 255, 0.02)",
+            padding: "1rem"
           }}
         >
-          Graph Placeholder
+          <WpmChart 
+            data={wpmHistory || []} 
+            finalWpm={stats.wpm} 
+            finalAcc={stats.acc} 
+          />
         </div>
 
         {/* Actions at the bottom */}
@@ -103,7 +109,7 @@ export default function ResultsModal({ isOpen, onClose, onRestart, stats, mode }
               Try Again
             </button>
           </div>
-          <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+          <span style={{ fontSize: "0.75rem", color: colors.muted }}>
             press tab to restart
           </span>
         </div>

@@ -93,6 +93,16 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+### Running Tests
+
+To run the test suite (Jest + React Testing Library):
+
+```bash
+npm test
+```
+
+This runs all unit tests located in the `tests/` directory. Use `npm test -- --watch` to run in watch mode during development.
+
 ---
 
 ## Development Workflow
