@@ -7,10 +7,7 @@ export default function ProfileModal({ isOpen, onClose }) {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState({
     displayName: "",
-    email: "",
-    bio: "",
-    phone: "",
-    location: ""
+    email: ""
   });
   const [loading, setLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
@@ -24,19 +21,13 @@ export default function ProfileModal({ isOpen, onClose }) {
         if (result.success && result.data) {
           setProfileData({
             displayName: result.data.displayName || user.displayName || "",
-            email: user.email || "",
-            bio: result.data.bio || "",
-            phone: result.data.phone || "",
-            location: result.data.location || ""
+            email: user.email || ""
           });
         } else {
           // If no profile exists, use auth data
           setProfileData({
             displayName: user.displayName || "",
-            email: user.email || "",
-            bio: "",
-            phone: "",
-            location: ""
+            email: user.email || ""
           });
         }
       }
@@ -63,17 +54,12 @@ export default function ProfileModal({ isOpen, onClose }) {
 
     try {
       const result = await updateUserProfile(user.uid, {
-        displayName: profileData.displayName,
-        bio: profileData.bio,
-        phone: profileData.phone,
-        location: profileData.location
+        displayName: profileData.displayName
       });
 
       if (result.success) {
-        setSaveMessage("Profile updated successfully!");
-        setTimeout(() => {
-          onClose();
-        }, 1500);
+        // Close immediately on success (no success notification shown)
+        onClose();
       } else {
         setSaveMessage("Error: " + result.error);
       }
@@ -122,39 +108,6 @@ export default function ProfileModal({ isOpen, onClose }) {
               onChange={handleProfileChange}
               placeholder="Enter your email"
               disabled
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              name="bio"
-              value={profileData.bio}
-              onChange={handleProfileChange}
-              placeholder="Tell us about yourself"
-              rows="4"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone">Phone</label>
-            <input
-              type="tel"
-              id="phone"
-              name="phone"
-              value={profileData.phone}
-              onChange={handleProfileChange}
-              placeholder="Enter your phone number"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="location">Location</label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={profileData.location}
-              onChange={handleProfileChange}
-              placeholder="Enter your location"
             />
           </div>
           <div className="modal-actions">

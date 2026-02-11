@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import styles from "./tests.module.css";
+import ResultsModal from "@/src/components/ResultsModal";
 
 // Deterministic seed helpers (same on server and client)
 function hashString(str) {
@@ -55,6 +56,7 @@ export default function TestsPage() {
   const [startedAt, setStartedAt] = useState(null);
   const [endedAt, setEndedAt] = useState(null);
   const [showResults, setShowResults] = useState(false);
+  const [wpmHistory, setWpmHistory] = useState([]);
 
   const inputRef = useRef(null);
   const containerRef = useRef(null);
@@ -78,6 +80,7 @@ export default function TestsPage() {
     setStartedAt(null);
     setEndedAt(null);
     setShowResults(false);
+    setWpmHistory([]);
   }, [mode]);
 
   const stats = useMemo(() => {
@@ -111,8 +114,10 @@ export default function TestsPage() {
     const totalConsidered = correctChars + mistakes;
     const acc = totalConsidered > 0 ? Math.round((correctChars / totalConsidered) * 100) : 100;
 
+    // Calculate WPM based on words completed
     const minutes = elapsedMs > 0 ? elapsedMs / 60000 : 1;
-    const wpm = Math.max(0, Math.round((correctChars / 5) / minutes));
+    const wordsCompleted = showResults ? words.length : index;
+    const wpm = Math.max(0, Math.round(wordsCompleted / minutes));
 
     return { wpm, acc, mistakes, elapsedMs };
   }, [inputs, words, startedAt, endedAt, index, showResults]);
@@ -149,6 +154,37 @@ export default function TestsPage() {
 
     if (key === " " || key === "Enter") {
       e.preventDefault();
+      
+      // Record WPM data point on word completion
+      if (startedAt) {
+        const now = Date.now();
+        const elapsedMs = now - startedAt;
+        const elapsedMin = elapsedMs / 60000;
+        
+        // Calculate WPM based on words completed (index + 1 = words done so far)
+        const wordsCompleted = index + 1;
+        const wpm = elapsedMin > 0 ? Math.round(wordsCompleted / elapsedMin) : 0;
+        
+        // Calculate accuracy based on correct characters
+        let correctChars = 0;
+        let totalChars = 0;
+        for (let wi = 0; wi <= index; wi++) {
+          const typed = inputs[wi] ?? "";
+          const word = words[wi];
+          const minLen = Math.min(word.length, typed.length);
+          for (let i = 0; i < minLen; i++) {
+            if (typed[i] === word[i]) correctChars++;
+          }
+          totalChars += word.length;
+        }
+        const acc = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 100;
+        
+        setWpmHistory((prev) => [
+          ...prev,
+          { time: elapsedMs / 1000, wpm, acc, wordIndex: index }
+        ]);
+      }
+      
       // Move to next word, finalize current
       if (index < words.length - 1) {
         setIndex(index + 1);
@@ -157,6 +193,13 @@ export default function TestsPage() {
         setEndedAt(Date.now());
         setShowResults(true);
       }
+      return;
+    }
+
+    // Tab to restart
+    if (key === "Tab") {
+      e.preventDefault();
+      restart();
       return;
     }
 
@@ -187,6 +230,7 @@ export default function TestsPage() {
     setStartedAt(null);
     setEndedAt(null);
     setShowResults(false);
+    setWpmHistory([]);
     requestAnimationFrame(() => focusInput());
   }
 
@@ -273,37 +317,25 @@ export default function TestsPage() {
         />
 
         <div className={styles.controls}>
-          {!showResults ? (
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
             <button className={styles.action} onClick={restart} type="button">
               Reset
             </button>
-          ) : (
-            <button
-              className={`${styles.action} ${styles.primary}`}
-              onClick={restart}
-              type="button"
-            >
-              Try again
-            </button>
-          )}
+            <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.5rem" }}>
+              press tab to restart
+            </span>
+          </div>
         </div>
 
-        {showResults && (
-          <div className={`${styles.results} ${styles.fadeIn}`}>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>WPM</span>
-              <strong className={styles.value}>{stats.wpm}</strong>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>Accuracy</span>
-              <strong className={styles.value}>{stats.acc}%</strong>
-            </div>
-            <div className={styles.resultRow}>
-              <span className={styles.label}>Test</span>
-              <strong className={styles.value}>{mode}</strong>
-            </div>
-          </div>
-        )}
+        {/* Results Modal */}
+        <ResultsModal
+          isOpen={showResults}
+          onClose={() => setShowResults(false)}
+          onRestart={restart}
+          stats={stats}
+          mode={mode}
+          wpmHistory={wpmHistory}
+        />
       </section>
     </main>
   );
