@@ -24,10 +24,16 @@ function refillBag(key) {
   }
   bags[key] = arr;
 }
-
 function nextWord(key) {
   if (!bags[key] || bags[key].length === 0) refillBag(key);
   return bags[key].pop();
+}
+
+
+function estimateWordWidth(text) {
+  const char = 10; // px per char
+  const padding = 34; // pill padding/border
+  return Math.min(420, Math.max(86, text.length * char + padding));
 }
 
 export default function WordFallGame({ onBack }) {
@@ -56,42 +62,105 @@ export default function WordFallGame({ onBack }) {
     if (!gameRef.current) return;
     const width = gameRef.current.clientWidth;
     const laneWidth = PRESETS[difficulty].laneWidth;
-    const count = Math.max(3, Math.floor(width / laneWidth));
+
+    // fewer lanes => more horizontal spacing => less overlap across lanes
+    const extraGap = 70;
+    const count = Math.max(3, Math.floor(width / (laneWidth + extraGap)));
+
     laneCountRef.current = count;
-    const margin = 12;
+    const margin = 18;
     const usable = width - margin * 2;
     lanesRef.current = Array.from({ length: count }, (_, i) =>
       Math.round(margin + (i + 0.5) * (usable / count))
     );
   }, [difficulty]);
 
-  const spawnWord = useCallback(() => {
-    if (words.length >= 3) return;
+  const findSpawnSlot = useCallback((text) => {
+    if (!gameRef.current) return null;
     if (!lanesRef.current.length) computeLanes();
 
-    const used = new Set(words.map(w => w.lane));
-    const free = lanesRef.current.map((_, i) => i).filter(i => !used.has(i));
-    if (!free.length) return;
+    const alive = words.filter(w => (w.state ?? 'alive') === 'alive');
+    const laneCandidates = lanesRef.current.map((_, i) => i);
 
-    const lane = free[Math.floor(Math.random() * free.length)];
+    // shuffle lanes
+    for (let i = laneCandidates.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [laneCandidates[i], laneCandidates[j]] = [laneCandidates[j], laneCandidates[i]];
+    }
+
+    const wWidth = estimateWordWidth(text);
+    const newY = -50;
+
+    // minimum separation
+    const minXGap = 26;
+    const minYGap = 90;
+
+    for (const lane of laneCandidates) {
+      const xCenter = lanesRef.current[lane];
+      const newX = Math.round(xCenter - wWidth / 2);
+
+      // keep fully on screen
+      const maxX = gameRef.current.clientWidth - wWidth - 6;
+      const clampedX = Math.max(6, Math.min(maxX, newX));
+
+      // check collision against existing words (2D)
+      let ok = true;
+      for (const other of alive) {
+        const oWidth = other.w ?? estimateWordWidth(other.text);
+        const dx = Math.abs((clampedX + wWidth / 2) - (other.x + oWidth / 2));
+        const dy = Math.abs(newY - other.y);
+
+        const overlapX = dx < (wWidth + oWidth) / 2 + minXGap;
+        const overlapY = dy < minYGap;
+
+        if (overlapX && overlapY) {
+          ok = false;
+          break;
+        }
+      }
+
+      if (ok) return { lane, x: clampedX, w: wWidth };
+    }
+
+    return null;
+  }, [words, computeLanes]);
+
+  const spawnWord = useCallback(() => {
+    const aliveCount = words.filter(w => (w.state ?? 'alive') === 'alive').length;
+    if (aliveCount >= 3) return;
+
     const text = nextWord(difficulty);
+    const slot = findSpawnSlot(text);
+    if (!slot) return;
 
     setWords(prev => {
       const newWord = {
         id: Date.now() + Math.random(),
         text,
-        lane,
+        lane: slot.lane,
         y: -50,
         speed: 0,
-        x: 0
+        x: slot.x,
+        w: slot.w,
+        state: 'alive', // alive | slicing
+        sliceDir: Math.random() < 0.5 ? -1 : 1,
+        slicedAt: 0
       };
       return [...prev, newWord];
     });
-  }, [words, difficulty, computeLanes]);
+  }, [words, difficulty, findSpawnSlot]);
 
   const removeWord = useCallback((wordId) => {
     setWords(prev => prev.filter(w => w.id !== wordId));
   }, []);
+
+  const sliceWord = useCallback((wordId) => {
+    const now = performance.now();
+    setWords(prev =>
+      prev.map(w => (w.id === wordId ? { ...w, state: 'slicing', slicedAt: now } : w))
+    );
+    setTimeout(() => removeWord(wordId), 520);
+  }, [removeWord]);
 
   const gameOver = useCallback(() => {
     setRunning(false);
@@ -108,42 +177,76 @@ export default function WordFallGame({ onBack }) {
     setOverlayVisible(true);
   }, [score, level]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const resolveOverlaps = useCallback((list) => {
+    // very light overlap resolver for max 3 words
+    const alive = list.filter(w => (w.state ?? 'alive') === 'alive');
+    const minYGap = 78;
+
+    // sort by y (top->bottom)
+    alive.sort((a, b) => a.y - b.y);
+
+    for (let i = 0; i < alive.length; i++) {
+      for (let j = i + 1; j < alive.length; j++) {
+        const A = alive[i];
+        const B = alive[j];
+
+        const aw = A.w ?? estimateWordWidth(A.text);
+        const bw = B.w ?? estimateWordWidth(B.text);
+
+        const dx = Math.abs((A.x + aw / 2) - (B.x + bw / 2));
+        const dy = Math.abs(A.y - B.y);
+
+        // only separate if they are near each other horizontally (so it’s a real overlap)
+        const nearX = dx < (aw + bw) / 2 + 18;
+        if (nearX && dy < minYGap) {
+          // push the higher one up a bit (clamp to keep on screen)
+          const push = (minYGap - dy) / 2;
+          A.y = Math.max(-60, A.y - push);
+          B.y = B.y + push;
+        }
+      }
+    }
+
+    // write back changes
+    const byId = new Map(alive.map(w => [w.id, w]));
+    return list.map(w => (byId.has(w.id) ? { ...w, y: byId.get(w.id).y } : w));
+  }, []);
+
   const update = useCallback((dt) => {
     if (!gameRef.current) return;
 
-    const toRemove = new Set();
     let lifeLost = false;
 
     setWords(prev => {
-      const updated = prev.map(w => {
-        if (toRemove.has(w.id)) return null;
+      let updated = prev
+        .map(w => {
+          if ((w.state ?? 'alive') === 'slicing') return w;
 
-        const base = PRESETS[difficulty].baseFall;
-        const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
-        const timeFactor = 1 + Math.min(1.0, elapsed * 0.004);
-        const levelFactor = 1 + (level - 1) * 0.06;
-        const speed = (base + Math.random() * base * 0.25) * levelFactor * timeFactor;
+          const base = PRESETS[difficulty].baseFall;
+          const elapsed = startTimeRef.current ? (performance.now() - startTimeRef.current) / 1000 : 0;
+          const timeFactor = 1 + Math.min(1.0, elapsed * 0.004);
+          const levelFactor = 1 + (level - 1) * 0.06;
+          const speed = (base + Math.random() * base * 0.25) * levelFactor * timeFactor;
 
-        const newY = w.y + speed * dt;
+          const newY = w.y + speed * dt;
 
-        if (newY >= gameRef.current.clientHeight - 60) {
-          toRemove.add(w.id);
-          if (!lifeLost) {
-            lifeLost = true;
-            setLives(l => {
-              const newLives = Math.max(0, l - 1);
-              if (newLives <= 0) {
-                setTimeout(() => gameOver(), 100);
-              }
-              return newLives;
-            });
+          if (newY >= gameRef.current.clientHeight - 60) {
+            if (!lifeLost) {
+              lifeLost = true;
+              setLives(l => {
+                const newLives = Math.max(0, l - 1);
+                if (newLives <= 0) setTimeout(() => gameOver(), 100);
+                return newLives;
+              });
+            }
+            return null;
           }
-          return null;
-        }
 
-        return { ...w, y: newY, speed };
-      }).filter(Boolean);
+          return { ...w, y: newY, speed };
+        })
+        .filter(Boolean);
 
+      updated = resolveOverlaps(updated);
       return updated;
     });
 
@@ -151,11 +254,12 @@ export default function WordFallGame({ onBack }) {
     const baseSpawn = PRESETS[difficulty].spawn;
     const cap = Math.max(900, baseSpawn - (level - 1) * 30);
 
-    if (lastSpawnRef.current >= cap && words.length < 3) {
+    const aliveCount = words.filter(w => (w.state ?? 'alive') === 'alive').length;
+    if (lastSpawnRef.current >= cap && aliveCount < 3) {
       lastSpawnRef.current = 0;
       spawnWord();
     }
-  }, [difficulty, level, gameOver, spawnWord, words.length]);
+  }, [difficulty, level, gameOver, spawnWord, words, resolveOverlaps]);
 
   const animate = useCallback((time) => {
     if (!running || paused) {
@@ -164,9 +268,7 @@ export default function WordFallGame({ onBack }) {
       return;
     }
 
-    if (lastTimeRef.current === null) {
-      lastTimeRef.current = time;
-    }
+    if (lastTimeRef.current === null) lastTimeRef.current = time;
 
     const dt = Math.min(0.05, (time - lastTimeRef.current) / 1000);
     lastTimeRef.current = time;
@@ -186,8 +288,8 @@ export default function WordFallGame({ onBack }) {
     setPaused(false);
     computeLanes();
 
-    setTimeout(() => spawnWord(), 100);
-    setTimeout(() => spawnWord(), 400);
+    setTimeout(() => spawnWord(), 120);
+    setTimeout(() => spawnWord(), 420);
   }, [computeLanes, spawnWord]);
 
   const startGame = () => {
@@ -205,10 +307,7 @@ export default function WordFallGame({ onBack }) {
     setPaused(prev => {
       const newPaused = !prev;
       if (newPaused) {
-        setOverlayContent({
-          title: 'Paused',
-          message: 'Press Resume to continue.'
-        });
+        setOverlayContent({ title: 'Paused', message: 'Press Resume to continue.' });
         setOverlayVisible(true);
       } else {
         setOverlayVisible(false);
@@ -230,23 +329,24 @@ export default function WordFallGame({ onBack }) {
       const value = inputValue.trim();
       if (!value) return;
 
-      let matchIdx = -1;
+      let match = null;
       let maxY = -Infinity;
 
-      words.forEach((w, idx) => {
+      words.forEach(w => {
+        if ((w.state ?? 'alive') !== 'alive') return;
         if (w.text.toLowerCase() === value.toLowerCase() && w.y > maxY) {
-          matchIdx = idx;
+          match = w;
           maxY = w.y;
         }
       });
 
-      if (matchIdx > -1) {
-        removeWord(words[matchIdx].id);
+      if (match) {
+        sliceWord(match.id);
         setScore(s => s + 10);
         setInputValue('');
       } else {
         setInputError(true);
-        setTimeout(() => setInputError(false), 180);
+        setTimeout(() => setInputError(false), 220);
       }
     }
   };
@@ -263,22 +363,6 @@ export default function WordFallGame({ onBack }) {
     return () => window.removeEventListener('resize', handleResize);
   }, [computeLanes]);
 
-  useEffect(() => {
-    if (gameRef.current && words.length > 0) {
-      words.forEach(word => {
-        if (!word.x && lanesRef.current[word.lane]) {
-          const xCenter = lanesRef.current[word.lane];
-          setWords(prev => prev.map(w => {
-            if (w.id === word.id && !w.x) {
-              return { ...w, x: xCenter - 50 };
-            }
-            return w;
-          }));
-        }
-      });
-    }
-  }, [words]);
-
   return (
     <section id="wordfallPage">
       <div
@@ -294,17 +378,12 @@ export default function WordFallGame({ onBack }) {
         }}
       >
         <div style={{ display: 'flex', gap: '.6rem', alignItems: 'center' }}>
-          <button className="btn" onClick={onBack}>
-            ← Back
-          </button>
+          <button className="btn" onClick={onBack}>← Back</button>
           <h2 style={{ marginLeft: '.4rem' }}>WordFall</h2>
         </div>
+
         <div style={{ display: 'flex', gap: '.6rem', alignItems: 'center' }}>
-          <label
-            htmlFor="difficulty"
-            className="sr-only"
-            style={{ position: 'absolute', left: '-9999px' }}
-          >
+          <label htmlFor="difficulty" className="sr-only" style={{ position: 'absolute', left: '-9999px' }}>
             Difficulty
           </label>
           <select
@@ -317,26 +396,23 @@ export default function WordFallGame({ onBack }) {
             <option value="intermediate">Intermediate</option>
             <option value="expert">Expert</option>
           </select>
+
           <button onClick={startGame} className="primary">
             {!running ? 'Start' : paused ? 'Resume' : 'Pause'}
           </button>
           <button onClick={restart}>Restart</button>
-          <span className="pill">
-            Score: <b>{score}</b>
-          </span>
-          <span className="pill">
-            Level: <b>{level}</b>
-          </span>
-          <span className="pill">
-            Lives: <b>{lives}</b>
-          </span>
+
+          <span className="pill">Score: <b>{score}</b></span>
+          <span className="pill">Level: <b>{level}</b></span>
+          <span className="pill">Lives: <b>{lives}</b></span>
         </div>
       </div>
 
-      {/* WordFall framed similarly, falling words dark, UI white */}
       <div className="kj-wrapper">
         <div className="kj-header">
           <div className="kj-title">WordFall</div>
+
+          {/* removed extra text next to difficulty */}
           <div className="kj-meta">
             <span>
               Difficulty:{' '}
@@ -348,26 +424,35 @@ export default function WordFallGame({ onBack }) {
                   : 'Expert'}
               </strong>
             </span>
-            <span>Words fall faster as you level up.</span>
-            <span>Type the word, then press Space or Enter.</span>
           </div>
         </div>
 
         <section id="stage">
           <div id="game" ref={gameRef}>
-            {words.map(word => (
-              <div
-                key={word.id}
-                className="word"
-                style={{
-                  transform: `translate(${word.x}px, ${word.y}px)`,
-                  position: 'absolute',
-                  color: '#000'
-                }}
-              >
-                {word.text}
-              </div>
-            ))}
+            {words.map(word => {
+              const isSlicing = (word.state ?? 'alive') === 'slicing';
+              return (
+                <div
+                  key={word.id}
+                  className={`word ${isSlicing ? 'slicing' : ''}`}
+                  style={{
+                    transform: `translate(${word.x}px, ${word.y}px)`,
+                    position: 'absolute'
+                  }}
+                >
+                  {isSlicing ? (
+                    <>
+                      <span className="half left" aria-hidden="true">{word.text}</span>
+                      <span className="half right" aria-hidden="true">{word.text}</span>
+                      <span className="slash" aria-hidden="true" />
+                      <span className="sr-only">{word.text}</span>
+                    </>
+                  ) : (
+                    word.text
+                  )}
+                </div>
+              );
+            })}
 
             {overlayVisible && (
               <div id="overlay">
@@ -375,18 +460,9 @@ export default function WordFallGame({ onBack }) {
                   {overlayContent && (
                     <>
                       <h2>{overlayContent.title}</h2>
-                      {overlayContent.message && (
-                        <p>{overlayContent.message}</p>
-                      )}
+                      {overlayContent.message && <p>{overlayContent.message}</p>}
                       {overlayContent.actions && overlayContent.actions.length > 0 && (
-                        <div
-                          style={{
-                            marginTop: '10px',
-                            display: 'flex',
-                            gap: '8px',
-                            justifyContent: 'center'
-                          }}
-                        >
+                        <div style={{ marginTop: '10px', display: 'flex', gap: '8px', justifyContent: 'center' }}>
                           {overlayContent.actions.map((action, idx) => (
                             <button
                               key={idx}
@@ -404,10 +480,10 @@ export default function WordFallGame({ onBack }) {
               </div>
             )}
           </div>
+
           <div className="footer">
-            <div className="muted">
-              Type the full word then press Space or Enter.
-            </div>
+            {/* removed bottom text */}
+            <div />
             <input
               ref={typeboxRef}
               id="typebox"
@@ -418,10 +494,7 @@ export default function WordFallGame({ onBack }) {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              style={{
-                borderColor: inputError ? 'rgba(239,68,68,.8)' : '',
-                color: '#000'
-              }}
+              className={inputError ? 'input-bad' : ''}
             />
           </div>
         </section>
